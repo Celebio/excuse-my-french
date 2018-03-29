@@ -1,0 +1,88 @@
+
+{sujet}{verbe:deplacement}{lieu:ville}
+je vais à Paris
+
+{sujet je}{verbe aller}{lieu Paris}
+
+
+
+{sujet}{verbe:deplacement}{lieu:pays}
+tu vas en Allemagne
+il se deplace aux Etats-Unis
+{sujet}{verbe:action}{cod:objet}
+nous regardons la tele
+{sujet}{verbe:coi-able}{cod:objet}{coi}
+il donne le livre à son frère
+
+limiter par verbe du premier groupe, present/passe, pronomial oui/non, negation
+resultats par caracteristique du verbe
+
+
+// {sujet}{verbe:deplacement}{lieu:ville}
+// -> pickRandom
+// {sujet:Il}{verbe:se deplacer}{lieu:istanbul}
+// -> transform1
+// {sujet:Il} {pronomverb: se} {verbe:deplacer} {lieu:istanbul}
+// -> transformTemps
+// {sujet:Il} {pronomverb: se} {aux:etre} {particip:deplacé} {lieu:istanbul}
+// -> transformPronom
+// {sujet:Il} {pronomverb: se} {pronomLieu:y} {aux:etre} {particip:deplacé} {lieu:istanbul}
+// -> transformNegation
+// {sujet:Il} {negation:Ne} {pronomverb: se} {pronomLieu:y} {aux:etre} {negation:pas} {particip:deplacé}
+
+// Il ne s'y est pas déplacé
+// Il s'y est déplacé
+// Il y a donné une conférence
+// Il l'y a donné
+
+
+// Je ne le lui donne pas
+// Je ne te le donne pas
+
+// Je ne le lui ai pas donné
+// Je ne te l'ai pas donné
+
+// Je vais donner
+// Je ne vais pas donner
+// Je ne vais pas te donner
+// Je ne vais pas y aller
+
+// Je ne vais pas te le donner
+// Je ne vais pas le lui donner
+
+// Je ne vais pas y aller
+
+// Nous avons téléphoné à tes parents
+// Nous leur avons téléphoné
+// Nous ne leur avons pas téléphoné
+
+// Nous allons téléphoner à tes parents
+// Nous allons leur téléphoner
+// Nous n'allons pas leur téléphoner
+
+// Vous êtes venus de Paris
+// Vous en êtes venus
+
+// J'ai fait mon exercice
+// Je l'ai fait
+// Je ne l'ai pas fait
+
+// Les clés ne sont pas sur la table
+// Les clés n'y sont pas.
+
+// Tu as bien réussi tes photos
+// Tu les as bien réussies
+
+// Nous avons parlé de la fête
+// Nous en avons parlé
+
+// Nous sommes allés à la piscine
+// Nous y sommes allés
+
+// Elle fait du piano
+// Elle en fait
+
+// Nous n'avons pas pris de thé
+// Nous n'en avons pas pris
+
+// https://www.slideshare.net/miguelprofairen/les-pronoms-cod-coi-en-et-y
