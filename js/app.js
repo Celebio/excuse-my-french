@@ -2,15 +2,15 @@
 var countries = ["France", "Allemagne", "Angleterre", "Turquie"];
 var cities = ["Paris", "Lyon", "Berlin", "Londres", "Saint-Etienne", "Istanbul", "Ankara"];
 var sujets = ["Je", "Tu", ["Il", "Elle", "On"], "Nous", "Vous", ["Ils", "Elles"]];
-var verbesDeplacement = ["Aller", "Partir", "Se déplacer", "Déménager"];
+var verbesDeplacement = ["aller", "partir", "se déplacer", "déménager"];
 var conjugaisons = {
-    "Aller":{
+    "aller":{
         'present':["vais", "vas", "va", "allons", "allez", "vont"]
     },
-    "Partir":{
+    "partir":{
         'present':["pars", "pars", "part", "partons", "partez", "partent"]
     },
-    "Déplacer":{
+    "déplacer":{
         'present':["déplace", "déplaces", "déplace", "déplaçons", "déplacez", "déplacent"]
     }
 };
@@ -35,26 +35,110 @@ var pickRandomItem = function(items){
     return item;
 };
 
-// class LinkedNode {
-//     constructor(){
-//         this._next = null;
-//     }
-
-// }
-
+var clone = function(obj){
+    let x = Object.assign({}, obj);
+    x.parent = obj;
+    return x;
+}
 
 class Generator {
-    generate(pattern){
-        //this._root = null;
+    pickRandom(pattern){
         let me = this;
+        let sentence = [];
         pattern.forEach(function(elem){
-            me.specify(elem);
+            let patternElement = clone(elem);
+            me._pickRandomPatternItem(patternElement, sentence);
         });
-        this.transformToFrenchSentence(pattern);
+        return sentence;
     }
 
-    getPatternElementType(patternElement){
-        let possibleTypes = {'sujet':1, 'verbe':1, 'lieu':1};
+    applyTense(pattern, tense){
+        let me = this;
+        let sentence = [];
+        pattern.forEach(function(elem){
+            let patternElement = clone(elem);
+            let patternElementType = me._getPatternElementType(patternElement);
+
+            if (patternElementType == 'verbe'){
+                me._applyTensePatternItem(patternElement, tense, sentence);
+            } else {
+                sentence.push(patternElement);
+            }
+        });
+        return sentence;
+    }
+    applyPronom(pattern, pronomShouldReplace){
+        let me = this;
+        let sentence = [];
+        let patternElementToReplace = null;
+        pattern.forEach(function(elem){
+            let patternElement = clone(elem);
+            let patternElementType = me._getPatternElementType(patternElement);
+            if (patternElementType == pronomShouldReplace){
+                patternElementToReplace = patternElement;
+            } else {
+                sentence.push(patternElement);
+            }
+        });
+        let indexToInsert = -1;
+        for (let i=0; i<sentence.length; i++){
+            let patternElementType = me._getPatternElementType(sentence[i]);
+            if (patternElementType == 'aux' ||
+                patternElementType == 'futurprocheverbe'){
+                indexToInsert = i;
+            }
+        }
+        sentence.splice(indexToInsert, 0, {
+            'pronomLieu':'y',
+            'parent':patternElementToReplace
+        });
+
+        return sentence;
+    }
+
+    _getAuxiliaireFromVerbe(verbeElement){
+        let etreVerbes = {'déplacer':1, 'partir':1, 'aller':1};
+        //console.log(verbeElement);
+        if (verbeElement.word in etreVerbes || verbeElement.pronomial){
+            return "etre";
+        }
+        return "avoir";
+    }
+
+    _applyTensePatternItem(verbeElement, tense, resultArr){
+        if (tense == 'present'){
+            resultArr.push(verbeElement);
+        } else if (tense == 'passecompose'){
+            resultArr.push({
+                'aux':this._getAuxiliaireFromVerbe(verbeElement),
+                'parent':verbeElement
+            });
+            resultArr.push({
+                'particip':verbeElement.word,
+                'parent':verbeElement
+            });
+        } else if (tense == "futurproche"){
+            let pronomialElement = null;
+            if (verbeElement.pronomial){
+                pronomialElement = resultArr.pop();
+            }
+            resultArr.push({
+                'futurproche':'aller',
+                'parent':verbeElement
+            });
+            if (pronomialElement){  // ils vont SE régaler
+                resultArr.push(pronomialElement);
+            }
+            resultArr.push({
+                'futurprocheverbe':verbeElement.word,
+                'parent':verbeElement,
+                'pronomial':verbeElement.pronomial
+            });
+        }
+    }
+
+    _getPatternElementType(patternElement){
+        let possibleTypes = {'sujet':1, 'verbe':1, 'lieu':1, 'aux':1, 'particip':1, 'futurproche':1, 'futurprocheverbe':1};
         for (let possibleType in possibleTypes){
             if (possibleType in patternElement){
                 return possibleType;
@@ -63,18 +147,26 @@ class Generator {
         return null;
     }
 
-    specify(patternElement){
+    _pickRandomPatternItem(patternElement, resultArr){
         let word = null;
-        let patternElementType = this.getPatternElementType(patternElement);
+        let patternElementType = this._getPatternElementType(patternElement);
 
-        if ('sujet' in patternElement){
+        if (patternElementType == 'sujet'){
             word = pickRandomItem(sujets);
-        } else if ('verbe' in patternElement){
+        } else if (patternElementType == 'verbe'){
             let verbeType = patternElement.verbe;
             if (verbeType == "deplacement"){
                 word = pickRandomItem(verbesDeplacement);
             }
-        } else if ('lieu' in patternElement){
+            if (word.substr(0,3) == "se "){
+                resultArr.push({
+                    'pronomverb':'se',
+                    'parent':patternElement
+                });
+                word = word.substr(3);
+                patternElement.pronomial = true;
+            }
+        } else if (patternElementType == 'lieu'){
             let lieuType = patternElement.lieu;
             if (lieuType == "ville"){
                 word = pickRandomItem(cities);
@@ -83,93 +175,22 @@ class Generator {
             }
         }
         if (word){
-            console.log(word);
             patternElement.word = word;
         }
+        resultArr.push(patternElement);
     }
 
-    indexOfSujetCore(sujetKey, items){
-        for (let i=0; i<items.length; i++){
-            let sujetCandidate = items[i];
-            if (sujetKey == sujetCandidate){
-                return i;
-            } else if (typeof(sujetCandidate)=='object'){
-                if (this.indexOfSujetCore(sujetKey, sujetCandidate)!=-1){
-                    return i;
-                }
-            }
-        }
-        return -1;
-    }
-
-    indexOfSujet(sujetKey){
-        return this.indexOfSujetCore(sujetKey, sujets);
-    }
-
-    getConjugedVerbe(verbeElement, sujetElement, tense){
-        assert(sujetElement != null);
-        let frenchWords = [];
-        let word = verbeElement.word;
-        let pronomial = false;
-        let frenchWord = null;
-        let sujetIndex = this.indexOfSujet(sujetElement.word);
-        if (word.substr(0,2) == "Se"){
-            pronomial = true;
-            word = word.substr(3);
-            word = capitalizeFirstLetter(word);
-
-            frenchWords.push(pronomialVerbePronoms[sujetIndex]);
-        }
-
-        let frenchWordOfVerb = null;
-
-        if (word in conjugaisons){
-            frenchWordOfVerb = conjugaisons[word][tense][sujetIndex];
-        } else if (word.slice(-2) == "er"){
-            frenchWordOfVerb = word.substr(0, word.length-2).concat(conjugaisonVerbePremierGroupe[tense][sujetIndex]);
-        }
-
-        if (frenchWordOfVerb){
-            frenchWordOfVerb = frenchWordOfVerb.toLowerCase();
-            frenchWords.push(frenchWordOfVerb);
-        }
-        return frenchWords;
-    }
-    getLieuFrenchWord(lieuElement){
-        let frenchWords = [];
-        if (lieuElement.lieu == 'ville'){
-            frenchWords.push('à');
-        } else if (lieuElement.lieu == 'pays'){
-            frenchWords.push('en');
-        }
-        frenchWords.push(lieuElement.word);
-
-        return frenchWords;
-    }
-
-    transformToFrenchSentence(pattern){
-        let words = [];
-        let sujet = null;
-        let me = this;
-        pattern.forEach(function(elem){
-            let patternElementType = me.getPatternElementType(elem);
-            let word = null;
-            if (patternElementType == 'sujet'){
-                word = elem.word;
-                sujet = elem;
-            } else if (patternElementType == 'verbe'){
-                word = me.getConjugedVerbe(elem, sujet, 'present');
-            } else if (patternElementType == 'lieu'){
-                word = me.getLieuFrenchWord(elem);
-            }
-            console.log(word);
-        });
-    }
 }
 
 
 class App {
     constructor(){}
+
+    drawSentence(sentence){
+        sentence.forEach(function(item){
+            console.log(item);
+        });
+    }
 
     generateWords(){
         let generator = new Generator();
@@ -178,17 +199,27 @@ class App {
             {'verbe':'deplacement'},
             {'lieu':'ville'}
         ];
-        let sentence = generator.generate(pattern);
 
         // // {sujet}{verbe:deplacement}{lieu:ville}
-        // let sentence = generator.pickRandom(pattern);
-        // //{sujet:Il}{verbe:se deplacer}{lieu:istanbul}
-        // sentence = generator.applyPronomialVerb(sentence);
+        let originalSentence = generator.pickRandom(pattern);
         // // {sujet:Il} {pronomverb: se} {verbe:deplacer} {lieu:istanbul}
-        // sentence = generator.applyTense(sentence);
-        // //{sujet:Il} {pronomverb: se} {aux:etre} {particip:deplacé} {lieu:istanbul}
-        // sentence = generator.applyPronom(sentence);
-        // // {sujet:Il} {pronomverb: se} {pronomLieu:y} {aux:etre} {particip:deplacé} {lieu:istanbul}
+        let sentence1 = generator.applyTense(originalSentence, "futurproche");
+        // //{sujet:Il} {futurproche:aller} {pronomverb: se}  {{futurprocheverbe:deplacer} {lieu:istanbul}
+        sentence1 = generator.applyPronom(sentence1, 'lieu');
+        // //{sujet:Il} {futurproche:aller} {pronomverb: se}{pronomLieu:y}  {{futurprocheverbe:deplacer}
+        this.drawSentence(sentence1);
+
+        console.log('--------------------------');
+        console.log('--------------------------');
+        let sentence2 = generator.applyTense(originalSentence, "passecompose");
+        // {sujet:Il} {pronomverb: se} {aux:etre} {particip:deplacé} {lieu:istanbul}
+        sentence2 = generator.applyPronom(sentence2, 'lieu');
+        // {sujet:Il} {pronomverb: se} {pronomLieu:y} {aux:etre} {particip:deplacé} {lieu:istanbul}
+        this.drawSentence(sentence2);
+
+
+        // {sujet:Il} {pronomverb: se} {pronomLieu:y} {aux:etre} {particip:deplacé} {lieu:istanbul}
+
         // sentence = generator.applyNegation(sentence);
         // // {sujet:Il} {negation:Ne} {pronomverb: se} {pronomLieu:y} {aux:etre} {negation:pas}
 

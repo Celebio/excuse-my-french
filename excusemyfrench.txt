@@ -1,4 +1,21 @@
 
+// Ils se sont déplacés
+// Ils vont se déplacer
+
+// Ils NE se sont PAS déplacés
+// Ils NE vont PAS se déplacer
+
+// Ils NE s'y sont PAS déplacés
+// Ils NE vont PAS s'y déplacer
+
+// Ils ont donné
+// Ils vont donner
+
+// Ils le lui ont donné
+// Ils vont le lui donner
+
+
+
 {sujet}{verbe:deplacement}{lieu:ville}
 je vais à Paris
 
