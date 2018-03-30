@@ -14,6 +14,18 @@
 // Ils le lui ont donné
 // Ils vont le lui donner
 
+// Ils NE le lui ont PAS donné
+// Ils NE vont PAS le lui donner
+
+// Ils vont à Paris
+// Ils y vont
+// Ils NE y vont PAS
+
+
+
+
+NE avant : futurproche || pronomLieu || pronom || pronomverb
+PAS apres : futurproche || verbe || aux
 
 
 {sujet}{verbe:deplacement}{lieu:ville}
