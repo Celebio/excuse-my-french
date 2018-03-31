@@ -20,15 +20,22 @@ var ConjugaisonReference = {
         "rendre":{
             'present':["rends", "rends", "rend", "rendons", "rendez", "rendent"],
             'participepassé':"rendu"
+        },
+        "prendre":{
+            'present':["prends", "prends", "prend", "prenons", "prenez", "prennent"],
+            'participepassé':"pris"
         }
     },
-    'pronominalVerbePronoms' : ["me", "te", "se", "nous", "vous", "se"]
+    'pronominalVerbePronoms' : ["me", "te", "se", "nous", "vous", "se"],
+    'conjugaisonVerbePremierGroupe' : {
+        'present':["e", "es", "e", "ons", "ez", "ent"]
+    }
 };
 
 class Conjugator {
     constructor(){}
 
-    conjugateVerbe(verbeKey, context, tense, doAccord){
+    conjugateVerbe(verbeKey, context, tense){
         let sujetIndex = context.sujetIndex;
         let word = null;
         if (tense == 'infinitif'){
@@ -46,17 +53,16 @@ class Conjugator {
             }
         } else if (verbeKey in ConjugaisonReference.conjugaisons){
             word = ConjugaisonReference.conjugaisons[verbeKey][tense][sujetIndex];
+        } else if (verbeKey.slice(-2) == 'er'){
+            word = verbeKey.substr(0, verbeKey.length-2).concat(ConjugaisonReference.conjugaisonVerbePremierGroupe[tense][sujetIndex]);
         }
 
-        if (doAccord){
-            // accord
-            if (tense == 'participepassé'){
-                if (context.feminin){
-                    word = word+"e";
-                }
-                if (context.pluriel){
-                    word = word+"s";
-                }
+        if (tense == 'participepassé' && context.shouldDoAccord()){
+            if (context.feminin){
+                word = word+"e";
+            }
+            if (context.pluriel){
+                word = word+"s";
             }
         }
 
@@ -75,6 +81,7 @@ class RenderContext {
         this.sujetIndex = -1;
         this.feminin = false;
         this.pluriel = false;
+        this._auxItem = null;
     }
 
     setSujet(patternElement){
@@ -107,6 +114,15 @@ class RenderContext {
 
     _indexOfSujet(sujetKey){
         return this._indexOfSujetCore(sujetKey, FrenchDictionary.sujets, 0);
+    }
+
+    setAuxItem(item){
+        this._auxItem = item;
+    }
+
+    shouldDoAccord(){
+        assert(this._auxItem);
+        return (this._auxItem.aux == AuxiliaireVerbes.ETRE);
     }
 }
 
@@ -141,6 +157,7 @@ class SentenceRenderer {
     render(tense){
         let me = this;
         this._sentence.forEach(function(item){
+            console.log(item);
             let word = null;
             let wordType = getPatternElementType(item);
             if (wordType == WordTypes.SUJET){
@@ -156,6 +173,7 @@ class SentenceRenderer {
                 word = me._conjugator.conjugateVerbe(item.futurprocheverbe, me._context, 'infinitif');
             } else if (wordType == WordTypes.AUX){
                 let verbeKey = item.aux == 1 ? 'être' : 'avoir';
+                me._context.setAuxItem(item);
                 word = me._conjugator.conjugateVerbe(verbeKey, me._context, 'present');
             } else if (wordType == WordTypes.PRONOMVERBE){
                 word = me._conjugator.conjugatePronom(me._context);
@@ -164,20 +182,20 @@ class SentenceRenderer {
             } else if (wordType == WordTypes.LIEU){
                 word = me._lieuRenderer.render(item);
             } else if (wordType == WordTypes.PARTICIP){
-                word = me._conjugator.conjugateVerbe(item.particip, me._context, 'participepassé', true);
+                word = me._conjugator.conjugateVerbe(item.particip, me._context, 'participepassé');
+            } else if (wordType == WordTypes.VERBE){
+                word = me._conjugator.conjugateVerbe(item.word, me._context, tense);
+            } else if (wordType == WordTypes.COD){
+                word = item.word;
             }
-
-            // console.log(word);
+            console.log(word);
             item.renderedWord = word;
         });
 
         let prev = null;
         this._sentence.forEach(function(item){
             let word = item.renderedWord;
-            console.log(word);
             if (me._startsWithVoyelle(word) && prev){
-                console.log(word);
-                console.log('_startsWithVoyelle');
                 prev.renderedWord = prev.renderedWord.substr(0, prev.renderedWord.length-1)+"'";
                 prev.appostrophed = true;
                 prev = null;

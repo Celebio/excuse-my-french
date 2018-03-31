@@ -11,7 +11,8 @@ var WordTypes = Object.freeze({
     PRONOM:9,
     PRONOMVERBE:10,
     NEG_NE:11,
-    NEG_PAS:12
+    NEG_PAS:12,
+    COD:13
 });
 var AuxiliaireVerbes = Object.freeze({ETRE:1, AVOIR:2});
 
@@ -19,7 +20,10 @@ var FrenchDictionary = Object.freeze({
     'countries':["France", "Allemagne", "Angleterre", "Turquie"],
     'cities' : ["Paris", "Lyon", "Berlin", "Londres", "Saint-Etienne", "Istanbul", "Ankara"],
     'sujets' : ["Je", "Tu", ["Il", "Elle", "On"], "Nous", "Vous", ["Ils", "Elles"]],
-    'verbesDeplacement' : ["aller", "partir", "se déplacer", "déménager", "se rendre"]
+    'verbesDeplacement' : ["aller", "partir", "se déplacer", "arriver", "déménager", "se rendre"],
+    'verbesAction' : ["donner", "prendre", "transporter"],
+    'verbesAutres' : ["téléphoner", "travailler"],
+    'objets' : ["le livre", "la table", "la chaise", "le canapé", "la télé", "la porte"]
 });
 
 
@@ -200,6 +204,8 @@ class Generator {
             let verbeType = patternElement.subset;
             if (verbeType == "deplacement"){
                 word = pickRandomItem(FrenchDictionary.verbesDeplacement);
+            } else if (verbeType == "action"){
+                word = pickRandomItem(FrenchDictionary.verbesAction);
             }
             if (word.substr(0,3) == "se "){
                 resultArr.push({
@@ -217,6 +223,8 @@ class Generator {
             } else if (lieuType == "pays"){
                 word = pickRandomItem(FrenchDictionary.countries);
             }
+        } else if (patternElementType == WordTypes.COD){
+            word = pickRandomItem(FrenchDictionary.objets);
         }
         if (word){
             patternElement.word = word;
@@ -231,13 +239,10 @@ class App {
 
     _renderInPage(sentence, frameId){
         let sentenceFrame = document.getElementById(frameId);
-        console.log(sentenceFrame);
         let cont = document.createElement("div");
         sentenceFrame.appendChild(cont);
 
         sentence.forEach(function(item){
-            console.log(item);
-
             let wordCont = document.createElement("span");
             wordCont.innerText = item.renderedWord;
             if (!item.appostrophed){
@@ -245,6 +250,32 @@ class App {
             }
             cont.appendChild(wordCont);
         });
+    }
+    generateWords2(){
+        let generator = new Generator();
+        let pattern = [
+            {'type':WordTypes.SUJET},
+            {'type':WordTypes.VERBE, 'subset':'action'},
+            {'type':WordTypes.COD, 'subset':'objet'},
+            {'type':WordTypes.LIEU, 'subset':'ville'}
+        ];
+
+        let tense = 'passecompose';
+
+        // {sujet}{verbe:deplacement}{lieu:ville}
+        let originalSentence = generator.pickRandom(pattern);
+        let sentence1 = originalSentence;
+        // {sujet:Il} {pronomverb: se} {verbe:deplacer} {lieu:istanbul}
+        sentence1 = generator.applyTense(originalSentence, tense);
+        // {sujet:Il} {futurproche:aller} {pronomverb: se}  {{futurprocheverbe:deplacer} {lieu:istanbul}
+        //sentence1 = generator.applyPronom(sentence1, WordTypes.LIEU);
+        // {sujet:Il} {futurproche:aller} {pronomverb: se}{pronomLieu:y}  {{futurprocheverbe:deplacer}
+        sentence1 = generator.applyNegation(sentence1);
+        // {sujet:Il} {neg:NE}{futurproche:aller}{neg:PAS} {pronomverb: se}{pronomLieu:y}  {{futurprocheverbe:deplacer}
+        let sentenceRenderer1 = new SentenceRenderer(sentence1);
+        sentenceRenderer1.render(tense);
+        // this.drawSentence(sentence1);
+        this._renderInPage(sentence1, 'sentenceFrame1');
     }
 
     generateWords(){
@@ -255,13 +286,13 @@ class App {
             {'type':WordTypes.LIEU, 'subset':'ville'}
         ];
 
-        let tense = 'futurproche';
+        let tense = 'present';
 
         // {sujet}{verbe:deplacement}{lieu:ville}
         let originalSentence = generator.pickRandom(pattern);
-        //let sentence1 = originalSentence;
+        let sentence1 = originalSentence;
         // {sujet:Il} {pronomverb: se} {verbe:deplacer} {lieu:istanbul}
-        let sentence1 = generator.applyTense(originalSentence, "futurproche");
+        sentence1 = generator.applyTense(originalSentence, tense);
         // {sujet:Il} {futurproche:aller} {pronomverb: se}  {{futurprocheverbe:deplacer} {lieu:istanbul}
         //sentence1 = generator.applyPronom(sentence1, WordTypes.LIEU);
         // {sujet:Il} {futurproche:aller} {pronomverb: se}{pronomLieu:y}  {{futurprocheverbe:deplacer}
@@ -286,54 +317,12 @@ class App {
         // {sujet:Il} {neg:NE}{pronomverb: se} {pronomLieu:y} {aux:etre}{neg:PAS {particip:deplacé} {lieu:istanbul}
         let sentenceRenderer2 = new SentenceRenderer(sentence2);
         sentenceRenderer2.render(tense);
-
         this._renderInPage(sentence2, 'sentenceFrame2');
 
-
-        //this.drawSentence(sentence2);
-
-
-        // {sujet:Il} {pronomverb: se} {pronomLieu:y} {aux:etre} {particip:deplacé} {lieu:istanbul}
-
-        // sentence = generator.applyNegation(sentence);
-        // // {sujet:Il} {negation:Ne} {pronomverb: se} {pronomLieu:y} {aux:etre} {negation:pas}
-
-        // let frenchSentence = serialize(sentence);
-
-
-        // // Nous allons téléphoner à tes parents
-        // // Nous n'allons pas leur téléphoner
-        // // {sujet}{verbe}{coi}
-        // let sentence = generator.pickRandom(pattern);
-        // // {sujet:nous}{verbe:telephoner}{coi:à tes parents}
-        // sentence = generator.applyPronomialVerb(sentence);
-        // // {sujet:nous}{verbe:telephoner}{coi:à tes parents}
-        // sentence = generator.applyTense(sentence);
-        // // {sujet:nous}{verbe:aller}{futurprocheverbe:telephoner}{coi:à tes parents}
-        // sentence = generator.applyPronom(sentence);
-        // // {sujet:nous}{verbe:aller}{pronom:coi:leur}{futurprocheverbe:telephoner}
-        // sentence = generator.applyNegation(sentence);
-        // // {sujet:nous}{neg:NE}{verbe:aller}{neg:PAS}{pronom:coi:leur}{futurprocheverbe:telephoner}
-
-
-        // // Nous avons téléphoné à tes parents
-        // // Nous ne leur avons pas téléphoné
-
-        // // {sujet}{verbe}{coi}
-        // let sentence = generator.pickRandom(pattern);
-        // // {sujet:nous}{verbe:telephoner}{coi:à tes parents}
-        // sentence = generator.applyPronomialVerb(sentence);
-        // // {sujet:nous}{verbe:telephoner}{coi:à tes parents}
-        // sentence = generator.applyTense(sentence);
-        // // {sujet:nous}{aux:avoir}{verbe:telephoner}{coi:à tes parents}
-        // sentence = generator.applyPronom(sentence);
-        // // {sujet:nous}{pronom:coi:leur}{aux:avoir}{verbe:telephoner}
-        // sentence = generator.applyNegation(sentence);
-        // // {sujet:nous}{neg:NE}{pronom:coi:leur}{aux:avoir}{neg:PAS}{verbe:telephoner}
 
     }
 }
 
 
 let app = new App();
-app.generateWords();
+app.generateWords2();
