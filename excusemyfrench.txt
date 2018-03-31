@@ -137,4 +137,6 @@ var conjugaisonVerbePremierGroupe = {
     'present':["e", "es", "e", "ons", "ez", "ent"]
 };
 
+// il/elle
+
 

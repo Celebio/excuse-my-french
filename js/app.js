@@ -9,7 +9,9 @@ var WordTypes = Object.freeze({
     FUTURPROCHEVERBE:7,
     PRONOMLIEU:8,
     PRONOM:9,
-    PRONOMVERBE:10
+    PRONOMVERBE:10,
+    NEG_NE:11,
+    NEG_PAS:12
 });
 var AuxiliaireVerbes = Object.freeze({ETRE:1, AVOIR:2});
 
@@ -43,6 +45,11 @@ var clone = function(obj){
     return x;
 }
 
+var getPatternElementType = function(patternElement){
+    return patternElement.type;
+}
+
+
 class Generator {
     pickRandom(pattern){
         let me = this;
@@ -59,7 +66,7 @@ class Generator {
         let sentence = [];
         pattern.forEach(function(elem){
             let patternElement = clone(elem);
-            let patternElementType = me._getPatternElementType(patternElement);
+            let patternElementType = getPatternElementType(patternElement);
 
             if (patternElementType == WordTypes.VERBE){
                 me._applyTensePatternItem(patternElement, tense, sentence);
@@ -75,7 +82,7 @@ class Generator {
         let patternElementToReplace = null;
         pattern.forEach(function(elem){
             let patternElement = clone(elem);
-            let patternElementType = me._getPatternElementType(patternElement);
+            let patternElementType = getPatternElementType(patternElement);
             if (patternElementType == pronomShouldReplace){
                 patternElementToReplace = patternElement;
             } else {
@@ -84,7 +91,7 @@ class Generator {
         });
         let indexToInsert = -1;
         for (let i=0; i<sentence.length; i++){
-            let patternElementType = me._getPatternElementType(sentence[i]);
+            let patternElementType = getPatternElementType(sentence[i]);
             if (patternElementType == WordTypes.AUX ||
                 patternElementType == WordTypes.FUTURPROCHEVERBE){
                 indexToInsert = i;
@@ -112,7 +119,7 @@ class Generator {
         let indexToInsertNe = -1;
         let indexToInsertPas = -1;
         for (let i=0; i<sentence.length; i++){
-            let patternElementType = me._getPatternElementType(sentence[i]);
+            let patternElementType = getPatternElementType(sentence[i]);
             if (indexToInsertNe == -1 &&
                     (patternElementType == WordTypes.FUTURPROCHE ||
                      patternElementType == WordTypes.PRONOMLIEU ||
@@ -130,10 +137,10 @@ class Generator {
             }
         }
         sentence.splice(indexToInsertNe, 0, {
-            'neg':'NE'
+            'type':WordTypes.NEG_NE
         });
         sentence.splice(indexToInsertPas+2, 0, {
-            'neg':'PAS'
+            'type':WordTypes.NEG_PAS
         });
 
         return sentence;
@@ -183,13 +190,9 @@ class Generator {
         }
     }
 
-    _getPatternElementType(patternElement){
-        return patternElement.type;
-    }
-
     _pickRandomPatternItem(patternElement, resultArr){
         let word = null;
-        let patternElementType = this._getPatternElementType(patternElement);
+        let patternElementType = getPatternElementType(patternElement);
 
         if (patternElementType == WordTypes.SUJET){
             word = pickRandomItem(FrenchDictionary.sujets);
@@ -226,6 +229,24 @@ class Generator {
 class App {
     constructor(){}
 
+    _renderInPage(sentence, frameId){
+        let sentenceFrame = document.getElementById(frameId);
+        console.log(sentenceFrame);
+        let cont = document.createElement("div");
+        sentenceFrame.appendChild(cont);
+
+        sentence.forEach(function(item){
+            console.log(item);
+
+            let wordCont = document.createElement("span");
+            wordCont.innerText = item.renderedWord;
+            if (!item.appostrophed){
+                wordCont.style.marginRight = '10px';
+            }
+            cont.appendChild(wordCont);
+        });
+    }
+
     generateWords(){
         let generator = new Generator();
         let pattern = [
@@ -233,6 +254,8 @@ class App {
             {'type':WordTypes.VERBE, 'subset':'deplacement'},
             {'type':WordTypes.LIEU, 'subset':'ville'}
         ];
+
+        let tense = 'futurproche';
 
         // {sujet}{verbe:deplacement}{lieu:ville}
         let originalSentence = generator.pickRandom(pattern);
@@ -245,8 +268,12 @@ class App {
         sentence1 = generator.applyNegation(sentence1);
         // {sujet:Il} {neg:NE}{futurproche:aller}{neg:PAS} {pronomverb: se}{pronomLieu:y}  {{futurprocheverbe:deplacer}
         let sentenceRenderer1 = new SentenceRenderer(sentence1);
-        sentenceRenderer1.render();
+        sentenceRenderer1.render(tense);
         // this.drawSentence(sentence1);
+        this._renderInPage(sentence1, 'sentenceFrame1');
+
+
+        tense = 'passecompose';
 
         console.log('--------------------------');
         console.log('--------------------------');
@@ -258,7 +285,10 @@ class App {
         sentence2 = generator.applyNegation(sentence2);
         // {sujet:Il} {neg:NE}{pronomverb: se} {pronomLieu:y} {aux:etre}{neg:PAS {particip:deplacé} {lieu:istanbul}
         let sentenceRenderer2 = new SentenceRenderer(sentence2);
-        sentenceRenderer2.render();
+        sentenceRenderer2.render(tense);
+
+        this._renderInPage(sentence2, 'sentenceFrame2');
+
 
         //this.drawSentence(sentence2);
 
