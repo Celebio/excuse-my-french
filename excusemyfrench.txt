@@ -115,3 +115,26 @@ resultats par caracteristique du verbe
 // Nous n'en avons pas pris
 
 // https://www.slideshare.net/miguelprofairen/les-pronoms-cod-coi-en-et-y
+
+
+
+var conjugaisons = {
+    "aller":{
+        'present':["vais", "vas", "va", "allons", "allez", "vont"]
+    },
+    "partir":{
+        'present':["pars", "pars", "part", "partons", "partez", "partent"]
+    },
+    "déplacer":{
+        'present':["déplace", "déplaces", "déplace", "déplaçons", "déplacez", "déplacent"]
+    },
+    "rendre":{
+        'present':["rends", "rends", "rend", "rendons", "rendez", "rendent"]
+    }
+};
+var pronominalVerbePronoms = ["me", "te", "se", "nous", "vous", "se"];
+var conjugaisonVerbePremierGroupe = {
+    'present':["e", "es", "e", "ons", "ez", "ent"]
+};
+
+
