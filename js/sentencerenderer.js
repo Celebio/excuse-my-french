@@ -27,6 +27,7 @@ var ConjugaisonReference = {
         }
     },
     'pronominalVerbePronoms' : ["me", "te", "se", "nous", "vous", "se"],
+    'pronoms' : ["me", "te", "lui", "nous", "vous", "leur"],
     'conjugaisonVerbePremierGroupe' : {
         'present':["e", "es", "e", "ons", "ez", "ent"]
     }
@@ -128,12 +129,36 @@ class RenderContext {
 
 class LieuRenderer {
     render(patternElement){
-        if (patternElement.subset == "ville"){
-            return "à "+patternElement.word;
-        } else if (patternElement.subset == "country"){
-            return "en "+patternElement.word;
+        return patternElement.word;
+    }
+}
+
+class PronomRenderer {
+    _detectGenre(word){
+        if (word.substr(0, 2) == 'le' ||
+            word.substr(0, 2) == 'un'
+            ){
+            return Genres.MASCULIN;
+        } else if (word.substr(0, 2) == 'la' ||
+                   word.substr(0, 3) == 'une') {
+            return Genres.FEMININ;
         }
-        return "";
+    }
+    render(patternElement){
+        let wordType = getPatternElementType(patternElement);
+        if (wordType == WordTypes.PRONOMCOD){
+            patternElement = getPronomReplacedAncestor(patternElement);
+            let genre = this._detectGenre(patternElement.word);
+            if (genre == Genres.MASCULIN){
+                return "le";
+            } else if (genre == Genres.FEMININ){
+                return "la";
+            }
+        } else if (wordType == WordTypes.PRONOMCOI){
+            let pronomIndex = findPronomIndex(patternElement);
+
+            return ConjugaisonReference.pronoms[pronomIndex];
+        }
     }
 }
 
@@ -143,6 +168,7 @@ class SentenceRenderer {
         this._context = new RenderContext();
         this._conjugator = new Conjugator();
         this._lieuRenderer = new LieuRenderer();
+        this._pronomRenderer = new PronomRenderer();
     }
 
     _startsWithVoyelle(word){
@@ -150,7 +176,7 @@ class SentenceRenderer {
         return (word.substr(0, 1) in voyelles);
     }
     _endsWithVoyelle(word){
-        let voyelles = {'e':1};
+        let voyelles = {'e':1, 'a':1};
         return (word.slice(-1) in voyelles);
     }
 
@@ -179,6 +205,10 @@ class SentenceRenderer {
                 word = me._conjugator.conjugatePronom(me._context);
             } else if (wordType == WordTypes.PRONOMLIEU){
                 word = "y";
+            } else if (wordType == WordTypes.PRONOMCOD){
+                word = me._pronomRenderer.render(item);
+            } else if (wordType == WordTypes.PRONOMCOI){
+                word = me._pronomRenderer.render(item);
             } else if (wordType == WordTypes.LIEU){
                 word = me._lieuRenderer.render(item);
             } else if (wordType == WordTypes.PARTICIP){
@@ -186,6 +216,8 @@ class SentenceRenderer {
             } else if (wordType == WordTypes.VERBE){
                 word = me._conjugator.conjugateVerbe(item.word, me._context, tense);
             } else if (wordType == WordTypes.COD){
+                word = item.word;
+            } else if (wordType == WordTypes.COI){
                 word = item.word;
             }
             console.log(word);
@@ -199,7 +231,7 @@ class SentenceRenderer {
                 prev.renderedWord = prev.renderedWord.substr(0, prev.renderedWord.length-1)+"'";
                 prev.appostrophed = true;
                 prev = null;
-            } else if (me._endsWithVoyelle(word)){
+            } else if (me._endsWithVoyelle(word) && word.length < 3){
                 prev = item;
             } else {
                 prev = null
