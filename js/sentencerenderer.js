@@ -183,7 +183,6 @@ class SentenceRenderer {
     render(tense){
         let me = this;
         this._sentence.forEach(function(item){
-            console.log(item);
             let word = null;
             let wordType = getPatternElementType(item);
             if (wordType == WordTypes.SUJET){
@@ -220,7 +219,6 @@ class SentenceRenderer {
             } else if (wordType == WordTypes.COI){
                 word = item.word;
             }
-            console.log(word);
             item.renderedWord = word;
         });
 

@@ -55,8 +55,8 @@ var clone = function(obj){
     return x;
 }
 
-var getPatternElementType = function(patternElement){
-    return patternElement.type;
+var getPatternElementType = function(sentenceElement){
+    return sentenceElement.type;
 }
 
 var getPronomReplacedAncestor = function(item){
@@ -78,12 +78,12 @@ var findPronomIndex = function(item){
 
 
 class Generator {
-    _checkCOIPronoms(pattern, indices){
+    _checkCOIPronoms(sentence, indices){
         let shouldBeAvoided = false;
 
         let sujetWord = null;
         let coiWord = null;
-        pattern.forEach(function(elem){
+        sentence.forEach(function(elem){
             let wordType = getPatternElementType(elem);
             if (wordType == WordTypes.SUJET){
                 sujetWord = elem;
@@ -108,60 +108,60 @@ class Generator {
         }
         return shouldBeAvoided;
     }
-    _checkWeirdSentence(pattern){
-        return this._checkCOIPronoms(pattern, [["Tu", "Vous"],["Vous", "Tu"],
+    _checkWeirdSentence(sentence){
+        return this._checkCOIPronoms(sentence, [["Tu", "Vous"],["Vous", "Tu"],
                                                ["Je", "Nous"],["Nous", "Je"]
                                               ]);
     }
 
-    _checkSelfActionSentence(pattern){
-        return this._checkCOIPronoms(pattern, [["Je", "Je"],["Tu", "Tu"],
+    _checkSelfActionSentence(sentence){
+        return this._checkCOIPronoms(sentence, [["Je", "Je"],["Tu", "Tu"],
                                                ["Il", "Il"],["Nous", "Nous"],
                                                ["Vous", "Vous"],["Ils", "Ils"]
                                               ]);
     }
 
-    pickRandom(pattern){
+    pickRandom(sourceSentence){
         let me = this;
         let sentence = null;
         let avoidSelfAction = true;
         do {
             sentence = [];
-            pattern.forEach(function(elem){
-                let patternElement = clone(elem);
-                me._pickRandomPatternItem(patternElement, sentence);
+            sourceSentence.forEach(function(elem){
+                let sentenceElement = clone(elem);
+                me._pickRandomPatternItem(sentenceElement, sentence);
             });
         } while (this._checkWeirdSentence(sentence) || (avoidSelfAction && this._checkSelfActionSentence(sentence)));
 
         return sentence;
     }
 
-    applyTense(pattern, tense){
+    applyTense(sourceSentence, tense){
         let me = this;
         let sentence = [];
-        pattern.forEach(function(elem){
-            let patternElement = clone(elem);
-            let patternElementType = getPatternElementType(patternElement);
+        sourceSentence.forEach(function(elem){
+            let sentenceElement = clone(elem);
+            let patternElementType = getPatternElementType(sentenceElement);
 
             if (patternElementType == WordTypes.VERBE){
-                me._applyTensePatternItem(patternElement, tense, sentence);
+                me._applyTensePatternItem(sentenceElement, tense, sentence);
             } else {
-                sentence.push(patternElement);
+                sentence.push(sentenceElement);
             }
         });
         return sentence;
     }
-    applyPronom(pattern, pronomShouldReplace){
+    applyPronom(sourceSentence, pronomShouldReplace){
         let me = this;
         let sentence = [];
         let patternElementToReplace = null;
-        pattern.forEach(function(elem){
-            let patternElement = clone(elem);
-            let patternElementType = getPatternElementType(patternElement);
+        sourceSentence.forEach(function(elem){
+            let sentenceElement = clone(elem);
+            let patternElementType = getPatternElementType(sentenceElement);
             if (patternElementType == pronomShouldReplace){
-                patternElementToReplace = patternElement;
+                patternElementToReplace = sentenceElement;
             } else {
-                sentence.push(patternElement);
+                sentence.push(sentenceElement);
             }
         });
 
@@ -227,13 +227,13 @@ class Generator {
 
         return sentence;
     }
-    applyNegation(pattern){
+    applyNegation(sourceSentence){
         let me = this;
         let sentence = [];
         let patternElementToReplace = null;
-        pattern.forEach(function(elem){
-            let patternElement = clone(elem);
-            sentence.push(patternElement);
+        sourceSentence.forEach(function(elem){
+            let sentenceElement = clone(elem);
+            sentence.push(sentenceElement);
         });
 
         let indexToInsertNe = -1;
@@ -312,14 +312,14 @@ class Generator {
         }
     }
 
-    _pickRandomPatternItem(patternElement, resultArr){
+    _pickRandomPatternItem(sentenceElement, resultArr){
         let word = null;
-        let patternElementType = getPatternElementType(patternElement);
+        let patternElementType = getPatternElementType(sentenceElement);
 
         if (patternElementType == WordTypes.SUJET){
             word = pickRandomItem(FrenchDictionary.sujets);
         } else if (patternElementType == WordTypes.VERBE){
-            let verbeType = patternElement.subset;
+            let verbeType = sentenceElement.subset;
             if (verbeType == "deplacement"){
                 word = pickRandomItem(FrenchDictionary.verbesDeplacement);
             } else if (verbeType == "action"){
@@ -329,13 +329,13 @@ class Generator {
                 resultArr.push({
                     'type':WordTypes.PRONOMVERBE,
                     'pronomverb':'se',
-                    'parent':patternElement
+                    'parent':sentenceElement
                 });
                 word = word.substr(3);
-                patternElement.pronominal = true;
+                sentenceElement.pronominal = true;
             }
         } else if (patternElementType == WordTypes.LIEU){
-            let lieuType = patternElement.subset;
+            let lieuType = sentenceElement.subset;
             if (lieuType == "ville"){
                 word = pickRandomItem(FrenchDictionary.cities);
             } else if (lieuType == "pays"){
@@ -351,14 +351,14 @@ class Generator {
             word = pickRandomItem(FrenchDictionary.cois);
         }
         if (word){
-            patternElement.word = word;
+            sentenceElement.word = word;
         }
-        resultArr.push(patternElement);
+        resultArr.push(sentenceElement);
     }
 }
 
 
-class App {
+class SentenceGenerator {
     constructor(){}
 
     _renderInPage(sentence, frameId){
@@ -437,5 +437,8 @@ class App {
 }
 
 
-let app = new App();
-app.generateWords();
+let sentenceGenerator = new SentenceGenerator();
+sentenceGenerator.generateWords();
+
+
+
