@@ -78,13 +78,47 @@ var findPronomIndex = function(item){
 
 
 class Generator {
+    _checkWeirdSentence(pattern){
+        let sujetWord = null;
+        let coiWord = null;
+        pattern.forEach(function(elem){
+            let wordType = getPatternElementType(elem);
+            if (wordType == WordTypes.SUJET){
+                sujetWord = elem;
+            } else if (wordType == WordTypes.COI){
+                coiWord = elem;
+            }
+        });
+        if (sujetWord && coiWord){
+            let rc = new RenderContext();
+            let sujetIndex = rc._indexOfSujetCore(sujetWord.word, FrenchDictionary.sujets, 0);
+            let coiIndex = rc._indexOfSujetCore(coiWord.word, FrenchDictionary.cois, 0);
+
+            // tu / vous
+            if ((sujetIndex == 1 && coiIndex == 4) ||
+                (sujetIndex == 4 && coiIndex == 1)){
+                return true;
+            }
+            // je / nous
+            if ((sujetIndex == 0 && coiIndex == 3) ||
+                (sujetIndex == 3 && coiIndex == 0)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     pickRandom(pattern){
         let me = this;
-        let sentence = [];
-        pattern.forEach(function(elem){
-            let patternElement = clone(elem);
-            me._pickRandomPatternItem(patternElement, sentence);
-        });
+        let sentence = null;
+        do {
+            sentence = [];
+            pattern.forEach(function(elem){
+                let patternElement = clone(elem);
+                me._pickRandomPatternItem(patternElement, sentence);
+            });
+        } while (this._checkWeirdSentence(sentence));
+
         return sentence;
     }
 
@@ -322,7 +356,7 @@ class App {
             let wordCont = document.createElement("span");
             wordCont.innerText = item.renderedWord;
             if (!item.appostrophed){
-                wordCont.style.marginRight = '10px';
+                wordCont.innerHTML += "&nbsp;";
             }
             cont.appendChild(wordCont);
         });
@@ -339,24 +373,18 @@ class App {
 
         let tense = 'passecompose';
 
-        // {sujet}{verbe:deplacement}{lieu:ville}
         let originalSentence = generator.pickRandom(pattern);
         let sentence1 = originalSentence;
-        // {sujet:Il} {pronomverb: se} {verbe:deplacer} {lieu:istanbul}
         sentence1 = generator.applyTense(originalSentence, tense);
-        // {sujet:Il} {futurproche:aller} {pronomverb: se}  {{futurprocheverbe:deplacer} {lieu:istanbul}
 
         // Il faut cet ordre : COD, COI, LIEU
-        sentence1 = generator.applyPronom(sentence1, WordTypes.COD);
+        //sentence1 = generator.applyPronom(sentence1, WordTypes.COD);
         sentence1 = generator.applyPronom(sentence1, WordTypes.COI);
         sentence1 = generator.applyPronom(sentence1, WordTypes.LIEU);
 
-        // {sujet:Il} {futurproche:aller} {pronomverb: se}{pronomLieu:y}  {{futurprocheverbe:deplacer}
         sentence1 = generator.applyNegation(sentence1);
-        // {sujet:Il} {neg:NE}{futurproche:aller}{neg:PAS} {pronomverb: se}{pronomLieu:y}  {{futurprocheverbe:deplacer}
         let sentenceRenderer1 = new SentenceRenderer(sentence1);
         sentenceRenderer1.render(tense);
-        // this.drawSentence(sentence1);
         this._renderInPage(sentence1, 'sentenceFrame1');
     }
 
@@ -373,34 +401,23 @@ class App {
         // {sujet}{verbe:deplacement}{lieu:ville}
         let originalSentence = generator.pickRandom(pattern);
         let sentence1 = originalSentence;
-        // {sujet:Il} {pronomverb: se} {verbe:deplacer} {lieu:istanbul}
         sentence1 = generator.applyTense(originalSentence, tense);
-        // {sujet:Il} {futurproche:aller} {pronomverb: se}  {{futurprocheverbe:deplacer} {lieu:istanbul}
         //sentence1 = generator.applyPronom(sentence1, WordTypes.LIEU);
-        // {sujet:Il} {futurproche:aller} {pronomverb: se}{pronomLieu:y}  {{futurprocheverbe:deplacer}
         sentence1 = generator.applyNegation(sentence1);
-        // {sujet:Il} {neg:NE}{futurproche:aller}{neg:PAS} {pronomverb: se}{pronomLieu:y}  {{futurprocheverbe:deplacer}
         let sentenceRenderer1 = new SentenceRenderer(sentence1);
         sentenceRenderer1.render(tense);
-        // this.drawSentence(sentence1);
         this._renderInPage(sentence1, 'sentenceFrame1');
 
 
         tense = 'passecompose';
 
-        console.log('--------------------------');
-        console.log('--------------------------');
         let sentence2 = generator.applyTense(originalSentence, "passecompose");
         //let sentence2 = originalSentence;
-        // {sujet:Il} {pronomverb: se} {aux:etre} {particip:deplacé} {lieu:istanbul}
         sentence2 = generator.applyPronom(sentence2, WordTypes.LIEU);
-        // {sujet:Il} {pronomverb: se} {pronomLieu:y} {aux:etre} {particip:deplacé} {lieu:istanbul}
         sentence2 = generator.applyNegation(sentence2);
-        // {sujet:Il} {neg:NE}{pronomverb: se} {pronomLieu:y} {aux:etre}{neg:PAS {particip:deplacé} {lieu:istanbul}
         let sentenceRenderer2 = new SentenceRenderer(sentence2);
         sentenceRenderer2.render(tense);
         this._renderInPage(sentence2, 'sentenceFrame2');
-
 
     }
 }
