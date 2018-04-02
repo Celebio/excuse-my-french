@@ -137,16 +137,8 @@ var conjugaisonVerbePremierGroupe = {
     'present':["e", "es", "e", "ons", "ez", "ent"]
 };
 
-// il/elle
 
 
-
-// 2ieme personne singulier/pluriel en sujet/coi ca fait bizarre:
-// Vous ne te l'avez pas donné
-// Tu ne vous l'as pas donné
-
-// pareil avec 1ere personne:
-// Nous ne me l'avons pas donné
 
 
 

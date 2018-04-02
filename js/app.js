@@ -78,7 +78,9 @@ var findPronomIndex = function(item){
 
 
 class Generator {
-    _checkWeirdSentence(pattern){
+    _checkCOIPronoms(pattern, indices){
+        let shouldBeAvoided = false;
+
         let sujetWord = null;
         let coiWord = null;
         pattern.forEach(function(elem){
@@ -89,35 +91,47 @@ class Generator {
                 coiWord = elem;
             }
         });
+
         if (sujetWord && coiWord){
             let rc = new RenderContext();
             let sujetIndex = rc._indexOfSujetCore(sujetWord.word, FrenchDictionary.sujets, 0);
             let coiIndex = rc._indexOfSujetCore(coiWord.word, FrenchDictionary.cois, 0);
 
-            // tu / vous
-            if ((sujetIndex == 1 && coiIndex == 4) ||
-                (sujetIndex == 4 && coiIndex == 1)){
-                return true;
-            }
-            // je / nous
-            if ((sujetIndex == 0 && coiIndex == 3) ||
-                (sujetIndex == 3 && coiIndex == 0)){
-                return true;
-            }
+            indices.forEach(function(indexElem){
+                let sujetIndexToCheck = rc._indexOfSujetCore(indexElem[0], FrenchDictionary.sujets, 0);
+                let coiIndexToCheck = rc._indexOfSujetCore(indexElem[1], FrenchDictionary.sujets, 0);
+
+                if ((sujetIndex == sujetIndexToCheck && coiIndex == coiIndexToCheck)){
+                    shouldBeAvoided = true;
+                }
+            });
         }
-        return false;
+        return shouldBeAvoided;
+    }
+    _checkWeirdSentence(pattern){
+        return this._checkCOIPronoms(pattern, [["Tu", "Vous"],["Vous", "Tu"],
+                                               ["Je", "Nous"],["Nous", "Je"]
+                                              ]);
+    }
+
+    _checkSelfActionSentence(pattern){
+        return this._checkCOIPronoms(pattern, [["Je", "Je"],["Tu", "Tu"],
+                                               ["Il", "Il"],["Nous", "Nous"],
+                                               ["Vous", "Vous"],["Ils", "Ils"]
+                                              ]);
     }
 
     pickRandom(pattern){
         let me = this;
         let sentence = null;
+        let avoidSelfAction = true;
         do {
             sentence = [];
             pattern.forEach(function(elem){
                 let patternElement = clone(elem);
                 me._pickRandomPatternItem(patternElement, sentence);
             });
-        } while (this._checkWeirdSentence(sentence));
+        } while (this._checkWeirdSentence(sentence) || (avoidSelfAction && this._checkSelfActionSentence(sentence)));
 
         return sentence;
     }
@@ -255,7 +269,7 @@ class Generator {
     }
 
     _getAuxiliaireFromVerbe(verbeElement){
-        let etreVerbes = {'déplacer':1, 'partir':1, 'aller':1};
+        let etreVerbes = {'déplacer':1, 'partir':1, 'aller':1, 'arriver':1, 'rendre':1};
         if (verbeElement.word in etreVerbes || verbeElement.pronominal){
             return AuxiliaireVerbes.ETRE;
         }
@@ -371,7 +385,7 @@ class App {
             //{'type':WordTypes.LIEU}
         ];
 
-        let tense = 'passecompose';
+        let tense = 'present';
 
         let originalSentence = generator.pickRandom(pattern);
         let sentence1 = originalSentence;
@@ -424,4 +438,4 @@ class App {
 
 
 let app = new App();
-app.generateWords2();
+app.generateWords();
