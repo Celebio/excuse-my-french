@@ -658,6 +658,48 @@ class SentenceGenerator {
         this._renderInPage(sentence1, 'sentenceFrame1');
     }
 
+    generate(pattern,
+             tense){
+        let generator = new Generator();
+        let originalSentence = generator.pickRandom(pattern);
+
+        let sentence = generator.applyTense(originalSentence, tense);
+        let sentenceRenderer1 = new SentenceRenderer(sentence);
+        sentenceRenderer1.render(tense);
+
+        return sentence;
+    }
+
+    generateModified(originalSentence,
+                     tense,
+                     shouldApplyPronomCOD,
+                     shouldApplyPronomCOI,
+                     shouldApplyPronomLieu,
+                     shouldApplyNegation){
+        let generator = new Generator();
+        let sentence1 = generator.applyTense(originalSentence, tense);
+
+        // Il faut cet ordre : COD, COI, LIEU
+
+        if (shouldApplyPronomCOD){
+            sentence1 = generator.applyPronom(sentence1, WordTypes.COD);
+        }
+        if (shouldApplyPronomCOI){
+            sentence1 = generator.applyPronom(sentence1, WordTypes.COI);
+        }
+        if (shouldApplyPronomLieu){
+            sentence1 = generator.applyPronom(sentence1, WordTypes.LIEU);
+        }
+        if (shouldApplyNegation){
+            sentence1 = generator.applyNegation(sentence1);
+        }
+
+        let sentenceRenderer1 = new SentenceRenderer(sentence1);
+        sentenceRenderer1.render(tense);
+
+        return sentence1;
+    }
+
     generateWords(){
         let generator = new Generator();
         let pattern = [
@@ -665,7 +707,6 @@ class SentenceGenerator {
             {'type':WordTypes.VERBE, 'subset':'deplacement'},
             {'type':WordTypes.LIEU, 'subset':'ville'}
         ];
-
         let tense = 'present';
 
         // {sujet}{verbe:deplacement}{lieu:ville}
@@ -693,5 +734,4 @@ class SentenceGenerator {
 }
 
 export default SentenceGenerator;
-//export default getPatternElementType;
-
+export var WordTypes;
