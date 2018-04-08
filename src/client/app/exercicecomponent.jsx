@@ -1,7 +1,8 @@
 
 import React from 'react';
 import SentenceGenerator, {WordTypes} from '../../../js/sentencegenerator.js';
-
+import { AwesomeButton } from 'react-awesome-button';
+import 'react-awesome-button/dist/styles.css';
 
 
 class Sentence extends React.Component {
@@ -10,7 +11,7 @@ class Sentence extends React.Component {
   }
   render() {
     return (
-        <div>
+        <span>
             {this.props.sentence.map((item, index) => (
                 <span className='indent' key={index} >{item.renderedWord}
                 { !item.appostrophed &&
@@ -20,7 +21,7 @@ class Sentence extends React.Component {
                 }
                 </span>
             ))}
-        </div>
+        </span>
     );
   }
 }
@@ -34,10 +35,10 @@ class ExerciceComponent extends React.Component {
         {'type':WordTypes.VERBE, 'subset':'deplacement'},
         {'type':WordTypes.LIEU, 'subset':'ville'}
     ];
-    let tense = 'present';
+    let tense = 'passecompose';
     let applyPronomCOD = false;
     let applyPronomCOI = false;
-    let applyPronomLieu = true;
+    let applyPronomLieu = false;
     let applyNegation = false;
 
     let sentenceGenerator = new SentenceGenerator();
@@ -62,13 +63,43 @@ class ExerciceComponent extends React.Component {
 
   render() {
     return (
-      <div className="container">
-        <div className="row">
-            <Sentence sentence={this.state.sentence} />
+      <div>
+        <div className="container">
+          <div className="py-5 text-center">
+            <h2>Conjugez le verbe au passé composé.</h2>
+            <p className="lead">
+              <b>Exemple :</b><br/>
+                  <Sentence sentence={this.state.sentence} /><br/>
+                  <Sentence sentence={this.state.answerSentence} /><br/>
+            </p>
+          </div>
         </div>
-        <div className="row">
-            <Sentence sentence={this.state.answerSentence} />
+        <div className="container">
+          <div className="row">
+            <h3>Exercice : </h3>
+            <div className="container">
+                <div className="row">
+                  <div className="col-12">
+                    <Sentence sentence={this.state.sentence} />
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-12">
+                    <form>
+                      <div>
+                        <input type="text" className="form-control" id="address" placeholder="Votre réponse ici" required="" />
+                      </div>
+                    </form>
+                    <div className="formSender">
+                        <AwesomeButton type="primary">Envoyer</AwesomeButton>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          </div>
+
         </div>
+
       </div>
     );
   }

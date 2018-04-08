@@ -20,6 +20,7 @@ var WordTypes = Object.freeze({
 var AuxiliaireVerbes = Object.freeze({ETRE:1, AVOIR:2});
 let Genres = Object.freeze({MASCULIN:1, FEMININ:2});
 
+
 var FrenchDictionary = Object.freeze({
     'countries':["en France", "en Allemagne", "en Angleterre", "en Turquie", "aux Etats-Unis"],
     'cities' : ["à Paris", "à Lyon", "à Berlin", "à Londres", "à Saint-Etienne", "à Istanbul"],
