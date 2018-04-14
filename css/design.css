@@ -1,9 +1,6 @@
 
 
-html {
-/*    font-size:20px;
-    background:#fff;
-*/}
+
 
 .flag-icon-fr {
   background-image: url(../flags/4x3/fr.svg);
@@ -24,18 +21,19 @@ html {
 }
 
 .aws-btn {
+
 --button-default-height: 48px;
 --button-default-font-size: 14px;
 --button-default-border-radius: 6px;
---button-horizontal-padding: 20px;
+--button-horizontal-padding: 30px;
 --button-raise-level: 5px;
 --button-hover-pressure: 2;
 --transform-speed: 0.185s;
---button-primary-color: #475472;
---button-primary-color-dark: #2a3143;
---button-primary-color-light: #fff;
---button-primary-color-hover: #424e6a;
---button-primary-border: none;
+--button-primary-color: #a84893;
+--button-primary-color-dark: #5f1b6b;
+--button-primary-color-light: #fff4fe;
+--button-primary-color-hover: #9c2064;
+--button-primary-border: 0px solid #FFFFFF;
 --button-secondary-color: #fffc6c;
 --button-secondary-color-dark: #b9b500;
 --button-secondary-color-light: #6c6a00;
@@ -47,4 +45,80 @@ html {
 --button-anchor-color-hover: #f1bfa0;
 --button-anchor-border: 1px solid #8c633c;
 }
+
+.anotherExampleButton{
+    font-size:12px;
+}
+
+/*https://codepen.io/elevaunt/pen/VvKdVa
+*/
+
+svg {
+  width: 100px;
+  display: block;
+  margin: 40px auto 0;
+}
+.path {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 0;
+}
+.path.circle {
+  -webkit-animation: dash 0.9s ease-in-out;
+  animation: dash 0.9s ease-in-out;
+}
+.path.line {
+  stroke-dashoffset: 1000;
+  -webkit-animation: dash 0.9s 0.35s ease-in-out forwards;
+  animation: dash 0.9s 0.35s ease-in-out forwards;
+}
+.path.check {
+  stroke-dashoffset: -100;
+  -webkit-animation: dash-check 0.9s 0.35s ease-in-out forwards;
+  animation: dash-check 0.9s 0.35s ease-in-out forwards;
+}
+p {
+  text-align: center;
+  margin: 20px 0 60px;
+  font-size: 1.25em;
+}
+p.success {
+  color: #73AF55;
+}
+p.error {
+  color: #D06079;
+}
+@-webkit-keyframes dash {
+  0% {
+    stroke-dashoffset: 1000;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes dash {
+  0% {
+    stroke-dashoffset: 1000;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+@-webkit-keyframes dash-check {
+  0% {
+    stroke-dashoffset: -100;
+  }
+  100% {
+    stroke-dashoffset: 900;
+  }
+}
+@keyframes dash-check {
+  0% {
+    stroke-dashoffset: -100;
+  }
+  100% {
+    stroke-dashoffset: 900;
+  }
+}
+
+
 
