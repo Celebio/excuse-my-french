@@ -307,6 +307,7 @@ class SentenceRenderer {
                 word = item.word;
             }
             item.renderedWord = word;
+            item.appostrophed = false;
         });
 
         let prev = null;
@@ -326,6 +327,7 @@ class SentenceRenderer {
         // this._sentence.forEach(function(item){
         //     let word = item.renderedWord;
         //     console.log(word);
+        //     console.log(item);
         // });
 
     }

@@ -1,6 +1,84 @@
 
+#scoreSpan{
+    float:left;
+}
+#scoreLabel{
+    float: left;
+    margin-right: 10px;
+}
 
+.animateEmphGreen{
+    animation: emphGreen 1.9s ease-in-out;
+}
+.animateEmphRed{
+    animation: emphRed 1.9s ease-in-out;
+}
 
+@keyframes emphGreen {
+  0% {
+    transform: rotate(0deg);
+    color:inherit;
+  }
+  25% {
+    transform: rotate(-45deg) scale(10, 10) translate(-20px, 0px);
+    color:green;
+  }
+  75% {
+    transform: rotate(45deg) scale(10, 10) translate(-20px, 20px);
+    color:green;
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+@keyframes emphRed {
+  0% {
+    transform: rotate(0deg);
+    color:inherit;
+  }
+  25% {
+    transform: rotate(-45deg) scale(10, 10) translate(-20px, 0px);
+    color:red;
+  }
+  75% {
+    transform: rotate(45deg) scale(10, 10) translate(-20px, 20px);
+    color:red;
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.sentencediff-subst {
+    color:red;
+    font-size:1.5em;
+}
+.sentencediff-deletion {
+    color:#ccc;
+    font-size:1.5em;
+  text-align: center;
+  position : relative;
+}
+
+.sentencediff-deletion:before {
+  position: absolute;
+  content : "";
+  left  : 50%;
+  top   : 0;
+  height: 100%;
+  width : 0;
+  border-right: 1px #666 solid;
+
+}
+
+.sentencediff-addition{
+    color:red;
+    font-size:1.5em;
+}
+.sentencediff-same{
+    color:#555;
+    font-size:1.5em;
+}
 
 .flag-icon-fr {
   background-image: url(../flags/4x3/fr.svg);

@@ -15,8 +15,21 @@ class App extends React.Component {
 
   onScoreChange(additionalScore){
     if (additionalScore){
+
         score += additionalScore;
-        document.getElementById("scoreSpan").innerHTML = score;
+        let dom = document.getElementById("scoreSpan");
+        dom.innerHTML = score;
+
+        setTimeout(function(){
+            if (additionalScore > 0){
+                dom.className = 'animateEmphGreen';
+            } else {
+                dom.className = 'animateEmphRed';
+            }
+            setTimeout(function(){
+                dom.className = '';
+            }, 2000);
+        }, 1000);
     }
   }
 

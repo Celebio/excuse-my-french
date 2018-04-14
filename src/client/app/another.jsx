@@ -26,5 +26,4 @@ class AwesomeComponent extends React.Component {
 }
 
 export default AwesomeComponent;
-console.log('another!');
 

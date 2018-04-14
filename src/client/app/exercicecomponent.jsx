@@ -8,6 +8,22 @@ import Sentence from './sentence.jsx';
 
 
 
+class SentenceDiff extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  render() {
+    return (
+        <div>
+            {this.props.sentencediff.map((item, index) => (
+                <span className={`sentencediff-${item.diff}`} key={index} >{item.char}
+                </span>
+            ))}
+        </div>
+    );
+  }
+}
+
 
 class ExerciceComponent extends React.Component {
   generateQuestionAnswerSentences(){
@@ -52,7 +68,6 @@ class ExerciceComponent extends React.Component {
                   'wrongAnswer':false,
                   'waitingAnswer':true
                  };
-    console.log(this.state);
 
     this.onFormSubmit = this.onFormSubmit.bind(this);
     this.onEncoreClick = this.onEncoreClick.bind(this);
@@ -65,7 +80,7 @@ class ExerciceComponent extends React.Component {
       event.preventDefault();
     }
     let sentenceChecker = new SentenceChecker();
-    let correct = sentenceChecker.checkIfCorrect(this.state.current.answerSentence, this.textInput.value);
+    let [correct, diffInfo] = sentenceChecker.checkIfCorrect(this.state.current.answerSentence, this.textInput.value);
     this.state.waitingAnswer = false;
     let additionalScore = 0;
     if (correct){
@@ -77,16 +92,19 @@ class ExerciceComponent extends React.Component {
       this.state.wrongAnswer = true;
       additionalScore = -1;
     }
+    this.state.current.sentencediff = diffInfo;
     this.setState(this.state);
-    console.log('skdjhskf');
-    console.log(this);
-    console.log(this.props);
-    console.log(this.props.onScoreChange);
+
     this.props.onScoreChange(additionalScore);
-    //console.log(this.textInput.value);
-    //console.log(this.state);
-    //if (this.textInput.value == )
+    let me = this;
+    window.onkeypress = function(e){
+      if (e.code == "Enter"){
+        me.onEncoreClick();
+        window.onkeypress = null;
+      }
+    }
   }
+
   onAnotherExampleClick(){
     let {sentence:exampleSentence, answerSentence:exampleAnswerSentence} = this.generateQuestionAnswerSentences();
     this.state.example = {
@@ -95,9 +113,17 @@ class ExerciceComponent extends React.Component {
                         };
     this.setState(this.state);
   }
+  prepareAnswerTextbox() {
+    this.textInput.value = "";
+    let me = this;
+    setTimeout(function(){
+      me.textInput.focus();
+    }, 1);
+  }
+
   onEncoreClick() {
       let {sentence, answerSentence} = this.generateQuestionAnswerSentences();
-      this.textInput.value = "";
+      this.prepareAnswerTextbox();
       this.state = {
                 'example':this.state.example,
                 'current':{
@@ -117,12 +143,12 @@ class ExerciceComponent extends React.Component {
         <div className="container">
           <div className="text-center">
             <h2>Conjugez le verbe au passé composé.</h2>
-            <p className="lead">
+            <div className="lead">
               <b>Exemple :</b><br/>
                   <Sentence sentence={this.state.example.sentence} /><br/>
                   <Sentence sentence={this.state.example.answerSentence} /><br/>
                   <a className="anotherExampleButton" href="javascript:void(0)" onClick={this.onAnotherExampleClick}>Un autre exemple</a>
-            </p>
+            </div>
           </div>
         </div>
         <div className="container">
@@ -162,6 +188,7 @@ class ExerciceComponent extends React.Component {
                         <div>
                           <span>Ca devait être : </span>
                           <Sentence sentence={this.state.current.answerSentence} />
+                          <SentenceDiff sentencediff={this.state.current.sentencediff} />
                         </div>
                         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
                           <circle className="path circle" fill="none" stroke="#D06079" strokeWidth="6" strokeMiterlimit="10" cx="65.1" cy="65.1" r="62.1"/>

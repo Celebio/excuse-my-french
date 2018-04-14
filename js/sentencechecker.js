@@ -105,6 +105,92 @@ function removeDiacritics (str) {
 class SentenceChecker {
     constructor(){}
 
+    getMinimalOperations(a, b){
+        let n = a.length;
+        let m = b.length;
+        let matrix = new Array(n+1);
+        let prev = new Array(n+1);
+        for(let i=0; i<=n; i++){
+            matrix[i] = new Array(m+1);
+            prev[i] = new Array(m+1);
+        }
+        matrix[n][m] = 0;
+        prev[n][m] = {'end':true};
+
+        let me = this;
+        let isSame = function(i, j){
+            if (i < n && j < m){
+                let ac = me.doucheRapide(a[i]);
+                let bc = me.doucheRapide(b[j]);
+                if (ac == '-' && bc == ' ') return true;
+                if (bc == '-' && ac == ' ') return true;
+                return (ac == bc);
+            };
+            return false;
+        }
+
+        for (let i=n; i>=0; i--){
+            for (let j=m; j>=0; j--){
+                if (isSame(i, j)){
+                    matrix[i][j] = matrix[i+1][j+1];
+                    prev[i][j] = {'i':i+1, 'j':j+1};
+                } else if (i != n || j!= m) {
+                    let val1 = (i+1)<=n ? 1+matrix[i+1][j] : Infinity;
+                    let val2 = (j+1)<=m ? 1+matrix[i][j+1] : Infinity;
+                    let val3 = ((i+1)<=n && (j+1)<=m) ? 1+matrix[i+1][j+1] : Infinity;
+                    if (val2 < val3){
+                        if (val1 < val2){
+                            matrix[i][j] = val1;
+                            prev[i][j] = {'i':i+1, 'j':j};
+                        } else {
+                            matrix[i][j] = val2;
+                            prev[i][j] = {'i':i, 'j':j+1};
+                        }
+                    } else {
+                        if (val1 < val3){
+                            matrix[i][j] = val1;
+                            prev[i][j] = {'i':i+1, 'j':j};
+                        } else {
+                            matrix[i][j] = val3;
+                            prev[i][j] = {'i':i+1, 'j':j+1};
+                        }
+                    }
+                }
+            }
+        }
+        let i = 0;
+        let j = 0;
+        let diffStr = "";
+        let diffInfo = [];
+        while (!('end' in prev[i][j])){
+            let p = prev[i][j];
+            let pi = p['i'];
+            let pj = p['j'];
+            let charDiff = null;
+            if (pi == i+1 && pj == j+1){
+                if (isSame(i, j)){
+                    charDiff = {'char':a[i], 'diff':"same"};
+                    diffStr += "<span>"+a[i]+"</span>";
+                } else {
+                    charDiff = {'char':a[i], 'diff':"subst"};
+                    diffStr += "<span class='subst'>"+a[i]+"</span>";
+                }
+            } else if (pi == i+1 && pj == j){
+                charDiff = {'char':a[i], 'diff':"addition"};
+                diffStr += "<span class='addition'>"+a[i]+"</span>";
+            } else if (pi == i && pj == j+1){
+                charDiff = {'char':b[j], 'diff':"deletion"};
+                diffStr += "<span class='deletion'>"+b[j]+"</span>";
+            }
+            diffInfo.push(charDiff);
+            i = pi;
+            j = pj;
+        }
+        console.log(diffStr);
+
+        return [matrix[0][0], diffInfo];
+    }
+
     sentenceToString(sentence){
         let strArr = [];
         sentence.forEach(function(item){
@@ -118,19 +204,23 @@ class SentenceChecker {
     }
     doucheRapide(str){
         str = removeDiacritics(str.replace(/\s+/g,' ').trim().toLowerCase());
-
+        return str;
+    }
+    douchePlusRapide(str){
+        str = (str.replace(/\s+/g,' ').trim());
         return str;
     }
 
     checkIfCorrect(correctSentenceArr, answerSentence){
         let correctSentence = this.sentenceToString(correctSentenceArr);
-        correctSentence = this.doucheRapide(correctSentence);
-        answerSentence = this.doucheRapide(answerSentence);
-        console.log(correctSentence);
-        console.log(answerSentence);
-        // renderedWord
+        correctSentence = this.douchePlusRapide(correctSentence);
+        answerSentence = this.douchePlusRapide(answerSentence);
+        // console.log(correctSentence);
+        // console.log(answerSentence);
+        let [dst, diffInfo] = this.getMinimalOperations(correctSentence, answerSentence);
+        // console.log(dst);
 
-        return (correctSentence == answerSentence);
+        return [(dst == 0), diffInfo];
     }
 };
 
