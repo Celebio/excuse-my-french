@@ -186,7 +186,6 @@ class SentenceChecker {
             i = pi;
             j = pj;
         }
-        console.log(diffStr);
 
         return [matrix[0][0], diffInfo];
     }
@@ -195,7 +194,7 @@ class SentenceChecker {
         let strArr = [];
         sentence.forEach(function(item){
             strArr.push(item.renderedWord);
-            if (!item.appostrophed){
+            if (!item.apostrophed){
                 strArr.push(' ');
             }
         });

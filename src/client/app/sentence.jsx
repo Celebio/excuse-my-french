@@ -10,7 +10,7 @@ class Sentence extends React.Component {
         <span>
             {this.props.sentence.map((item, index) => (
                 <span className='indent' key={index} >{item.renderedWord}
-                { !item.appostrophed &&
+                { !item.apostrophed &&
                     <span>
                         &nbsp;
                     </span>

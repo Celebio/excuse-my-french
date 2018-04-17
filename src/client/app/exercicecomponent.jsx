@@ -7,7 +7,6 @@ import 'react-awesome-button/dist/styles.css';
 import Sentence from './sentence.jsx';
 
 
-
 class SentenceDiff extends React.Component {
   constructor(props) {
     super(props);
@@ -72,8 +71,35 @@ class ExerciceComponent extends React.Component {
     this.onFormSubmit = this.onFormSubmit.bind(this);
     this.onEncoreClick = this.onEncoreClick.bind(this);
     this.onAnotherExampleClick = this.onAnotherExampleClick.bind(this);
+    this.setOnEnterAsFormSubmit();
   }
 
+  setOnEnterAsFormSubmit(){
+    let me = this;
+    window.onkeypress = function(e){
+      if (e.code == "Enter"){
+        me.onFormSubmit();
+        window.onkeypress = function(e){
+          if (e.code == "Enter"){
+            me.onEncoreClick();
+          }
+        };
+      }
+    }
+  }
+  setOnEnterAsEncore(){
+    let me = this;
+    window.onkeypress = function(e){
+      if (e.code == "Enter"){
+        me.onEncoreClick();
+        window.onkeypress = function(e){
+          if (e.code == "Enter"){
+            me.onFormSubmit();
+          }
+        };
+      }
+    }
+  }
 
   onFormSubmit(event){
     if (event && event.preventDefault){
@@ -81,37 +107,43 @@ class ExerciceComponent extends React.Component {
     }
     let sentenceChecker = new SentenceChecker();
     let [correct, diffInfo] = sentenceChecker.checkIfCorrect(this.state.current.answerSentence, this.textInput.value);
-    this.state.waitingAnswer = false;
     let additionalScore = 0;
+    let correctAnswer = false;
+    let wrongAnswer = false;
     if (correct){
-      this.state.correctAnswer = true;
-      this.state.wrongAnswer = false;
+      correctAnswer = true;
+      wrongAnswer = false;
       additionalScore = 1;
     } else {
-      this.state.correctAnswer = false;
-      this.state.wrongAnswer = true;
+      correctAnswer = false;
+      wrongAnswer = true;
       additionalScore = -1;
     }
-    this.state.current.sentencediff = diffInfo;
-    this.setState(this.state);
+    this.setState((prevState, props) => ({
+      'example':prevState.example,
+      'current':prevState.current,
+      'correctAnswer':correctAnswer,
+      'wrongAnswer':wrongAnswer,
+      'waitingAnswer':false,
+      'sentencediff':diffInfo
+    }));
 
     this.props.onScoreChange(additionalScore);
-    let me = this;
-    window.onkeypress = function(e){
-      if (e.code == "Enter"){
-        me.onEncoreClick();
-        window.onkeypress = null;
-      }
-    }
+    this.setOnEnterAsEncore();
   }
 
   onAnotherExampleClick(){
     let {sentence:exampleSentence, answerSentence:exampleAnswerSentence} = this.generateQuestionAnswerSentences();
-    this.state.example = {
-                        'sentence' : exampleSentence,
-                        'answerSentence' : exampleAnswerSentence
-                        };
-    this.setState(this.state);
+    this.setState((prevState, props) => ({
+      'example':{
+        'sentence' : exampleSentence,
+        'answerSentence' : exampleAnswerSentence
+      },
+      'current':prevState.current,
+      'correctAnswer':prevState.correctAnswer,
+      'wrongAnswer':prevState.wrongAnswer,
+      'waitingAnswer':prevState.waitingAnswer
+    }));
   }
   prepareAnswerTextbox() {
     this.textInput.value = "";
@@ -122,19 +154,19 @@ class ExerciceComponent extends React.Component {
   }
 
   onEncoreClick() {
-      let {sentence, answerSentence} = this.generateQuestionAnswerSentences();
-      this.prepareAnswerTextbox();
-      this.state = {
-                'example':this.state.example,
-                'current':{
-                  'sentence' : sentence,
-                  'answerSentence' : answerSentence
-                },
-                'correctAnswer':false,
-                'wrongAnswer':false,
-                'waitingAnswer':true
-               };
-      this.setState(this.state);
+    let {sentence, answerSentence} = this.generateQuestionAnswerSentences();
+    this.prepareAnswerTextbox();
+    this.setState((prevState, props) => ({
+      'example':prevState.example,
+      'current':{
+        'sentence' : sentence,
+        'answerSentence' : answerSentence
+      },
+      'correctAnswer':false,
+      'wrongAnswer':false,
+      'waitingAnswer':true
+    }));
+    this.setOnEnterAsFormSubmit();
   }
 
   render() {
@@ -162,7 +194,7 @@ class ExerciceComponent extends React.Component {
                 </div>
                 <div className="row">
                   <div className="col-12">
-                    <form onSubmit={this.onFormSubmit}>
+                    <form onSubmit={ (e) => (e && e.preventDefault()) } >
                       <div>
                         <input disabled={!this.state.waitingAnswer} spellCheck="false" type="text" className="form-control" id="address" placeholder="Votre réponse ici" required="" ref={(input) => this.textInput = input} />
                       </div>
@@ -188,7 +220,7 @@ class ExerciceComponent extends React.Component {
                         <div>
                           <span>Ca devait être : </span>
                           <Sentence sentence={this.state.current.answerSentence} />
-                          <SentenceDiff sentencediff={this.state.current.sentencediff} />
+                          <SentenceDiff sentencediff={this.state.sentencediff} />
                         </div>
                         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
                           <circle className="path circle" fill="none" stroke="#D06079" strokeWidth="6" strokeMiterlimit="10" cx="65.1" cy="65.1" r="62.1"/>

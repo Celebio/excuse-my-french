@@ -307,7 +307,7 @@ class SentenceRenderer {
                 word = item.word;
             }
             item.renderedWord = word;
-            item.appostrophed = false;
+            item.apostrophed = false;
         });
 
         let prev = null;
@@ -315,7 +315,7 @@ class SentenceRenderer {
             let word = item.renderedWord;
             if (me._startsWithVoyelle(word) && prev){
                 prev.renderedWord = prev.renderedWord.substr(0, prev.renderedWord.length-1)+"'";
-                prev.appostrophed = true;
+                prev.apostrophed = true;
                 prev = null;
             } else if (me._endsWithVoyelle(word) && word.length < 3){
                 prev = item;
@@ -628,7 +628,7 @@ class SentenceGenerator {
         sentence.forEach(function(item){
             let wordCont = document.createElement("span");
             wordCont.innerText = item.renderedWord;
-            if (!item.appostrophed){
+            if (!item.apostrophed){
                 wordCont.innerHTML += "&nbsp;";
             }
             cont.appendChild(wordCont);
