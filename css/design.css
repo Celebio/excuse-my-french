@@ -154,16 +154,17 @@ svg {
   -webkit-animation: dash-check 0.9s 0.35s ease-in-out forwards;
   animation: dash-check 0.9s 0.35s ease-in-out forwards;
 }
-p {
+div.success {
+  color: #73AF55;
   text-align: center;
   margin: 20px 0 60px;
   font-size: 1.25em;
 }
-p.success {
-  color: #73AF55;
-}
-p.error {
+div.error {
   color: #D06079;
+  text-align: center;
+  margin: 20px 0 60px;
+  font-size: 1.25em;
 }
 @-webkit-keyframes dash {
   0% {

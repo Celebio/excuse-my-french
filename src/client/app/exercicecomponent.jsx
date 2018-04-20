@@ -1,6 +1,5 @@
 
 import React from 'react';
-import SentenceGenerator, {WordTypes} from '../../../js/sentencegenerator.js';
 import SentenceChecker from '../../../js/sentencechecker.js';
 import { AwesomeButton } from 'react-awesome-button';
 import 'react-awesome-button/dist/styles.css';
@@ -225,41 +224,22 @@ class ExerciceComponent extends React.Component {
     super(props);
   }
 
-  generateQuestionAnswerSentences(){
-    let pattern = [
-        {'type':WordTypes.SUJET},
-        {'type':WordTypes.VERBE, 'subset':'deplacement'},
-        {'type':WordTypes.LIEU, 'subset':'ville'}
-    ];
-    let tense = 'passecompose';
-    let applyPronomCOD = false;
-    let applyPronomCOI = false;
-    let applyPronomLieu = false;
-    let applyNegation = false;
-
-    let sentenceGenerator = new SentenceGenerator();
-    let sentence = sentenceGenerator.generate(pattern, 'present');
-    let answerSentence = sentenceGenerator.generateModified(sentence, tense, applyPronomCOD, applyPronomCOI, applyPronomLieu, applyNegation);
-
-    return {sentence:sentence, answerSentence:answerSentence};
-  }
-
   render() {
     return (
       <div>
         <div className="container">
           <div className="text-center">
-            <h2>Conjugez le verbe au passé composé.</h2>
+            <h2>{this.props.title}</h2>
             <div className="lead">
               <b>Exemple :</b><br/>
-              <ExampleSentenceComponent generateQuestionAnswerSentences={this.generateQuestionAnswerSentences} />
+              <ExampleSentenceComponent generateQuestionAnswerSentences={this.props.generateQuestionAnswerSentences} />
             </div>
           </div>
         </div>
         <div className="container">
           <div className="row">
             <h3>Exercice : </h3>
-            <ExerciceSentenceComponent onScoreChange={this.props.onScoreChange} generateQuestionAnswerSentences={this.generateQuestionAnswerSentences} />
+            <ExerciceSentenceComponent onScoreChange={this.props.onScoreChange} generateQuestionAnswerSentences={this.props.generateQuestionAnswerSentences} />
           </div>
         </div>
       </div>

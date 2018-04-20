@@ -1,5 +1,6 @@
 import React from 'react';
 import {render} from 'react-dom';
+import SentenceGenerator, {WordTypes} from '../../../js/sentencegenerator.js';
 
 import AwesomeComponent from './another.jsx';
 import ExerciceComponent from './exercicecomponent.jsx';
@@ -11,6 +12,7 @@ class App extends React.Component {
     super(props);
 
     this.onScoreChange = this.onScoreChange.bind(this);
+    this.generateQuestionAnswerSentences = this.generateQuestionAnswerSentences.bind(this);
   }
 
   onScoreChange(additionalScore){
@@ -33,10 +35,29 @@ class App extends React.Component {
     }
   }
 
+  generateQuestionAnswerSentences(){
+    let pattern = [
+        {'type':WordTypes.SUJET},
+        {'type':WordTypes.VERBE, 'subset':'deplacement'},
+        {'type':WordTypes.LIEU, 'subset':'ville'}
+    ];
+    let tense = 'passecompose';
+    let applyPronomCOD = false;
+    let applyPronomCOI = false;
+    let applyPronomLieu = false;
+    let applyNegation = false;
+
+    let sentenceGenerator = new SentenceGenerator();
+    let sentence = sentenceGenerator.generate(pattern, 'present');
+    let answerSentence = sentenceGenerator.generateModified(sentence, tense, applyPronomCOD, applyPronomCOI, applyPronomLieu, applyNegation);
+
+    return {sentence:sentence, answerSentence:answerSentence};
+  }
+
   render() {
     return (
         <div>
-          <ExerciceComponent onScoreChange={this.onScoreChange} />
+          <ExerciceComponent title="Conjugez le verbe au passé composé." generateQuestionAnswerSentences={this.generateQuestionAnswerSentences} onScoreChange={this.onScoreChange} />
         </div>
     );
   }
