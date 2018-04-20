@@ -20,11 +20,11 @@
     color:inherit;
   }
   25% {
-    transform: rotate(-45deg) scale(10, 10) translate(-20px, 0px);
+    transform: rotate(-5deg) scale(5, 5) translate(-10px, 0px);
     color:green;
   }
   75% {
-    transform: rotate(45deg) scale(10, 10) translate(-20px, 20px);
+    transform: rotate(-5deg) scale(5, 5) translate(-10px, 0px);
     color:green;
   }
   100% {
@@ -37,11 +37,11 @@
     color:inherit;
   }
   25% {
-    transform: rotate(-45deg) scale(10, 10) translate(-20px, 0px);
+    transform: rotate(-5deg) scale(4, 4) translate(-10px, 0px);
     color:red;
   }
   75% {
-    transform: rotate(45deg) scale(10, 10) translate(-20px, 20px);
+    transform: rotate(-5deg) scale(4, 4) translate(-10px, 0px);
     color:red;
   }
   100% {

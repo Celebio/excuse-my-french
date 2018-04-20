@@ -5,26 +5,17 @@ import SentenceChecker from '../../../js/sentencechecker.js';
 import { AwesomeButton } from 'react-awesome-button';
 import 'react-awesome-button/dist/styles.css';
 import Sentence from './sentence.jsx';
+import SentenceDiff from './sentencediff.jsx';
 
 
-class SentenceDiff extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-  render() {
-    return (
-        <div>
-            {this.props.sentencediff.map((item, index) => (
-                <span className={`sentencediff-${item.diff}`} key={index} >{item.char}
-                </span>
-            ))}
-        </div>
-    );
+class SentenceBasedComponent extends React.Component {
+  constructor(){
+    super();
   }
 }
 
 
-class ExerciceComponent extends React.Component {
+class ExerciceComponent extends SentenceBasedComponent {
   generateQuestionAnswerSentences(){
     let pattern = [
         {'type':WordTypes.SUJET},
@@ -169,6 +160,18 @@ class ExerciceComponent extends React.Component {
     this.setOnEnterAsFormSubmit();
   }
 
+  onHelperButtonClick(e, text){
+    if (e.preventDefault){
+      e.preventDefault();
+    }
+    console.log(text);
+    this.textInput.value += text;
+    let me = this;
+    setTimeout(function(){
+      me.textInput.focus();
+    }, 1);
+  }
+
   render() {
     return (
       <div>
@@ -189,12 +192,20 @@ class ExerciceComponent extends React.Component {
             <div className="container">
                 <div className="row">
                   <div className="col-12">
+                    <b>La phrase : </b>
                     <Sentence sentence={this.state.current.sentence} />
                   </div>
                 </div>
                 <div className="row">
                   <div className="col-12">
+                    <b>Votre réponse : </b>
                     <form onSubmit={ (e) => (e && e.preventDefault()) } >
+                      <div>
+                        <button disabled={!this.state.waitingAnswer} onClick={(e) => this.onHelperButtonClick(e, "è")}>è</button>
+                        <button disabled={!this.state.waitingAnswer} onClick={(e) => this.onHelperButtonClick(e, "é")}>é</button>
+                        <button disabled={!this.state.waitingAnswer} onClick={(e) => this.onHelperButtonClick(e, "ê")}>ê</button>
+                        <button disabled={!this.state.waitingAnswer} onClick={(e) => this.onHelperButtonClick(e, "à")}>à</button>
+                      </div>
                       <div>
                         <input disabled={!this.state.waitingAnswer} spellCheck="false" type="text" className="form-control" id="address" placeholder="Votre réponse ici" required="" ref={(input) => this.textInput = input} />
                       </div>
@@ -211,8 +222,14 @@ class ExerciceComponent extends React.Component {
                           <circle className="path circle" fill="none" stroke="#73AF55" strokeWidth="6" strokeMiterlimit="10" cx="65.1" cy="65.1" r="62.1"/>
                           <polyline className="path check" fill="none" stroke="#73AF55" strokeWidth="6" strokeLinecap="round" strokeMiterlimit="10" points="100.2,40.2 51.5,88.8 29.8,67.5 "/>
                         </svg>
-                        <p className="success">Bien vu!</p>
-                        <AwesomeButton action={this.onEncoreClick} type="primary">Encore</AwesomeButton>
+                        <div className="success">
+                          <div>
+                            Bien vu!
+                          </div>
+                          <div>
+                            <AwesomeButton action={this.onEncoreClick} type="primary">Encore!</AwesomeButton>
+                          </div>
+                        </div>
                       </span>
                     }
                     { this.state.wrongAnswer &&
@@ -227,8 +244,14 @@ class ExerciceComponent extends React.Component {
                           <line className="path line" fill="none" stroke="#D06079" strokeWidth="6" strokeLinecap="round" strokeMiterlimit="10" x1="34.4" y1="37.9" x2="95.8" y2="92.3"/>
                           <line className="path line" fill="none" stroke="#D06079" strokeWidth="6" strokeLinecap="round" strokeMiterlimit="10" x1="95.8" y1="38" x2="34.4" y2="92.2"/>
                         </svg>
-                        <p className="error">Mince!</p>
-                        <AwesomeButton action={this.onEncoreClick} type="primary">Encore</AwesomeButton>
+                        <div className="error">
+                          <div>
+                            Mince!
+                          </div>
+                          <div>
+                            <AwesomeButton action={this.onEncoreClick} type="primary">J'essaye une autre</AwesomeButton>
+                          </div>
+                        </div>
                       </span>
                     }
                   </div>
