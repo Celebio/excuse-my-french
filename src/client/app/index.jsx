@@ -36,14 +36,34 @@ class App extends React.Component {
   }
 
   generateQuestionAnswerSentences(){
+    // let pattern = [
+    //     {'type':WordTypes.SUJET},
+    //     {'type':WordTypes.VERBE, 'subset':'deplacement'},
+    //     {'type':WordTypes.LIEU, 'subset':'ville'}
+    // ];
+    // let pattern = [
+    //     {'type':WordTypes.SUJET},
+    //     {'type':WordTypes.VERBE, 'subset':'action'},
+    //     {'type':WordTypes.COD}
+    // ];
+
+    // let pattern = [
+    //     {'type':WordTypes.SUJET},
+    //     {'type':WordTypes.VERBE, 'subset':'action-coi'},
+    //     {'type':WordTypes.COD},
+    //     {'type':WordTypes.COI}
+    // ];
+
     let pattern = [
         {'type':WordTypes.SUJET},
-        {'type':WordTypes.VERBE, 'subset':'deplacement'},
-        {'type':WordTypes.LIEU, 'subset':'ville'}
+        {'type':WordTypes.VERBE, 'subset':'transitifs-indirect-qqun'},
+        {'type':WordTypes.COI}
     ];
-    let tense = 'passecompose';
+
+
+    let tense = 'present';
     let applyPronomCOD = false;
-    let applyPronomCOI = false;
+    let applyPronomCOI = true;
     let applyPronomLieu = false;
     let applyNegation = false;
 

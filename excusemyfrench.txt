@@ -22,6 +22,39 @@
 // Ils NE y vont PAS
 
 
+- tolerance differente pour les aux, verbes et cod (typiquement osef qu'on tape mal le nom d'une ville)
+
+// parler de qq chose
+// change de qq chose
+
+
+http://www.ralentirtravaux.com/lettres/cours/conjugaison/verbes-plus-frequents.php
+
+// comprendre
+    -> cod subset : "comprehensible" : le livre, le cours, la formule, "comment ça marche", "comment ça fonctionne"
+// aimer
+    -> cod subset : "aimable" : le livre, le printemps, les vêtements, la ville, {un lieu}
+
+// pouvoir, falloir
+    -> cod "pouvoir-able"
+    "comprendre comment faire", "lire un livre", "donner une table"
+
+// savoir
+    -> cod "savoir-able"
+    "comment faire", "lire", "la difficulté", "que le français n'est pas compliqué"
+
+
+
+// être-like:
+//  devenir, sembler, être
+// adjectifs:
+// désolé, bizarre, seul, beau, sérieux, drôle, fort, malade
+
+
+// on peut pas remplacer le coi:
+penser, croire, tenir
+pense à lui --X--> lui pense
+
 
 
 NE avant : futurproche || pronomLieu || pronom || pronomverb

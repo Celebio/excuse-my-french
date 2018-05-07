@@ -27,11 +27,12 @@ var FrenchDictionary = Object.freeze({
     'lieuxAutres' : ["en ville", "à la maison", "à la campagne", "au supermarché"],
     'sujets' : ["Je", "Tu", ["Il", "Elle", "On"], "Nous", "Vous", ["Ils", "Elles"]],
     'verbesDeplacement' : ["aller", "partir", "se déplacer", "arriver", "déménager", "se rendre"],
-    'verbesAction' : ["donner", "prendre", "transporter", "livrer"],
+    'verbesAction' : ["donner", "prendre", "transporter", "livrer", "changer", "mettre", "voir", "acheter"],
     'verbesAutres' : ["téléphoner", "travailler"],
-    'verbesTransitifsIndirects' : ["téléphoner", "assister"],
+    'verbesActionCoiable' : ["montrer", "envoyer", "donner", "transporter", "livrer", "lancer", "rendre", "expliquer", "enseigner"],
+    'verbesTransitifsIndirectsQuelquun' : ["téléphoner", "obéir", "répondre", "mentir", "plaire"],
     'objets' : ["le livre", "la table", "la chaise", "le canapé", "la télé", "la porte"],
-    'cois' : ["à moi", "à toi", ["à lui", "à elle", "à Alphonse", "à Elodie"], ["à nous", "à moi et Eloise"], ["à vous", "à toi et Pierre"], ["à eux", "à elles", "à Jean-Baptise et Pierre", "à Jean-Baptise et Eloise"]]
+    'cois' : ["à moi", "à toi", ["à lui", "à elle", "à Alphonse", "à Elodie"], ["à nous", "à Eloise et à moi"], ["à vous", "à Pierre et à toi"], ["à eux", "à elles", "à Jean-Baptise et Pierre", "à Jean-Baptise et Eloise"]]
 });
 
 
@@ -54,6 +55,12 @@ var ConjugaisonReference = {
         "déplacer":{
             'present':["déplace", "déplaces", "déplace", "déplaçons", "déplacez", "déplacent"]
         },
+        "lancer":{
+            'present':["lance", "lances", "lance", "lançons", "lancez", "lancent"]
+        },
+        "envoyer":{
+            'present':["envoie", "envoies", "envoie", "envoyons", "envoyez", "envoient"]
+        },
         "rendre":{
             'present':["rends", "rends", "rend", "rendons", "rendez", "rendent"],
             'participepassé':"rendu"
@@ -61,7 +68,43 @@ var ConjugaisonReference = {
         "prendre":{
             'present':["prends", "prends", "prend", "prenons", "prenez", "prennent"],
             'participepassé':"pris"
-        }
+        },
+        "mettre":{
+            'present':["mets", "mets", "met", "mettons", "mettez", "mettent"],
+            'participepassé':"mis"
+        },
+        "voir":{
+            'present':["vois", "vois", "voit", "voyons", "voyez", "voient"],
+            'participepassé':"vu"
+        },
+        "savoir":{
+            'present':["sais", "sais", "sait", "savons", "savez", "savent"],
+            'participepassé':"su"
+        },
+        "obéir":{
+            'present':["obéis", "obéis", "obéit", "obéissons", "obéissez", "obéissent"],
+            'participepassé':"obéi"
+        },
+        "répondre":{
+            'present':["réponds", "réponds", "répond", "répondons", "répondez", "répondent"],
+            'participepassé':"répondu"
+        },
+        "mentir":{
+            'present':["mens", "mens", "ment", "mentons", "mentez", "mentent"],
+            'participepassé':"menti"
+        },
+        "tenir":{
+            'present':["tiens", "tiens", "tient", "tenons", "tenez", "tiennent"],
+            'participepassé':"tenu"
+        },
+        "croire":{
+            'present':["crois", "crois", "croit", "croyons", "croyez", "croient"],
+            'participepassé':"cru"
+        },
+        "plaire":{
+            'present':["plais", "plais", "plait", "plaisons", "plaisez", "plaisent"],
+            'participepassé':"plu"
+        },
     },
     'pronominalVerbePronoms' : ["me", "te", "se", "nous", "vous", "se"],
     'pronoms' : ["me", "te", "lui", "nous", "vous", "leur"],
@@ -317,7 +360,7 @@ class SentenceRenderer {
                 prev.renderedWord = prev.renderedWord.substr(0, prev.renderedWord.length-1)+"'";
                 prev.apostrophed = true;
                 prev = null;
-            } else if (me._endsWithVoyelle(word) && word.length < 3){
+            } else if (me._endsWithVoyelle(word) && word.length < 3 && word.length > 1){
                 prev = item;
             } else {
                 prev = null
@@ -583,6 +626,10 @@ class Generator {
                 word = pickRandomItem(FrenchDictionary.verbesDeplacement);
             } else if (verbeType == "action"){
                 word = pickRandomItem(FrenchDictionary.verbesAction);
+            } else if (verbeType == "action-coi"){
+                word = pickRandomItem(FrenchDictionary.verbesActionCoiable);
+            } else if (verbeType == "transitifs-indirect-qqun"){
+                word = pickRandomItem(FrenchDictionary.verbesTransitifsIndirectsQuelquun);
             }
             if (word.substr(0,3) == "se "){
                 resultArr.push({
