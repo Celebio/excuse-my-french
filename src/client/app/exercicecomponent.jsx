@@ -6,6 +6,11 @@ import 'react-awesome-button/dist/styles.css';
 import Sentence from './sentence.jsx';
 import SentenceDiff from './sentencediff.jsx';
 
+String.prototype.insert = function (index, string) {
+  var ind = index < 0 ? this.length + index  :  index;
+  return  this.substring(0, ind) + string + this.substring(ind, this.length);
+};
+
 
 class SentenceBasedComponent extends React.Component {
   constructor(props){
@@ -61,23 +66,40 @@ class ExerciceSentenceComponent extends SentenceBasedComponent {
     this.state = {
       'sentence':this.state.sentence,
       'answerSentence':this.state.answerSentence,
-      'waitingAnswer':true
+      'waitingAnswer':true,
+      'inputValue':""
     };
 
     this.onHelperButtonClick = this.onHelperButtonClick.bind(this);
     this.onFormSubmit = this.onFormSubmit.bind(this);
     this.onEncoreClick = this.onEncoreClick.bind(this);
+    this.updateInputValue = this.updateInputValue.bind(this);
     this.setOnEnterHandler();
   }
 
+  updateInputValue(e){
+    let val = e.target.value;
+    this.setState((prevState, props) => {
+      let st = Object.assign({}, prevState, {'inputValue':val});
+      return st;
+    });
+  }
   onHelperButtonClick(e, text){
     if (e.preventDefault){
       e.preventDefault();
     }
-    this.textInput.value += text;
+    let position = this.textInput.selectionStart;
+    this.setState((prevState, props) => {
+      let st = Object.assign({}, prevState);
+      st.inputValue = st.inputValue.substr(0, position-1) + text + st.inputValue.substr(position-1);
+
+      return st;
+    });
+    position++;
     let me = this;
     setTimeout(function(){
       me.textInput.focus();
+      me.textInput.setSelectionRange(position, position);
     }, 1);
   }
 
@@ -86,7 +108,7 @@ class ExerciceSentenceComponent extends SentenceBasedComponent {
       event.preventDefault();
     }
     let sentenceChecker = new SentenceChecker();
-    let [correct, diffInfo] = sentenceChecker.checkIfCorrect(this.state.answerSentence, this.textInput.value);
+    let [correct, diffInfo] = sentenceChecker.checkIfCorrect(this.state.answerSentence, this.state.inputValue);
     let additionalScore = 0;
     let correctAnswer = false;
     let wrongAnswer = false;
@@ -105,14 +127,14 @@ class ExerciceSentenceComponent extends SentenceBasedComponent {
       'correctAnswer':correctAnswer,
       'wrongAnswer':wrongAnswer,
       'waitingAnswer':false,
-      'sentencediff':diffInfo
+      'sentencediff':diffInfo,
+      'inputValue':prevState.inputValue
     }));
 
     this.props.onScoreChange(additionalScore);
   }
 
   prepareAnswerTextbox() {
-    this.textInput.value = "";
     let me = this;
     setTimeout(function(){
       me.textInput.focus();
@@ -127,7 +149,8 @@ class ExerciceSentenceComponent extends SentenceBasedComponent {
       'answerSentence' : answerSentence,
       'correctAnswer':false,
       'wrongAnswer':false,
-      'waitingAnswer':true
+      'waitingAnswer':true,
+      'inputValue':""
     }));
   }
 
@@ -165,7 +188,7 @@ class ExerciceSentenceComponent extends SentenceBasedComponent {
                 <button disabled={!this.state.waitingAnswer} onClick={(e) => this.onHelperButtonClick(e, "à")}>à</button>
               </div>
               <div>
-                <input disabled={!this.state.waitingAnswer} spellCheck="false" type="text" className="form-control" id="address" placeholder="Votre réponse ici" required="" ref={(input) => this.textInput = input} />
+                <input value={this.state.inputValue} disabled={!this.state.waitingAnswer} spellCheck="false" type="text" className="form-control" onChange={this.updateInputValue} placeholder="Votre réponse ici" required="" ref={(input) => this.textInput = input} />
               </div>
             </form>
             { this.state.waitingAnswer &&
