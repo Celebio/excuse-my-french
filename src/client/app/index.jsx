@@ -47,23 +47,23 @@ class App extends React.Component {
     //     {'type':WordTypes.COD}
     // ];
 
+    let pattern = [
+        {'type':WordTypes.SUJET},
+        {'type':WordTypes.VERBE, 'subset':'action-coi'},
+        {'type':WordTypes.COD},
+        // {'type':WordTypes.COI}
+    ];
+
     // let pattern = [
     //     {'type':WordTypes.SUJET},
-    //     {'type':WordTypes.VERBE, 'subset':'action-coi'},
-    //     {'type':WordTypes.COD},
+    //     {'type':WordTypes.VERBE, 'subset':'transitifs-indirect-qqun'},
     //     {'type':WordTypes.COI}
     // ];
 
-    let pattern = [
-        {'type':WordTypes.SUJET},
-        {'type':WordTypes.VERBE, 'subset':'transitifs-indirect-qqun'},
-        {'type':WordTypes.COI}
-    ];
 
-
-    let tense = 'present';
-    let applyPronomCOD = false;
-    let applyPronomCOI = true;
+    let tense = 'passecompose';
+    let applyPronomCOD = true;
+    let applyPronomCOI = false;
     let applyPronomLieu = false;
     let applyNegation = false;
 
@@ -77,7 +77,7 @@ class App extends React.Component {
   render() {
     return (
         <div>
-          <ExerciceComponent title="Conjugez le verbe au passé composé." generateQuestionAnswerSentences={this.generateQuestionAnswerSentences} onScoreChange={this.onScoreChange} />
+          <ExerciceComponent title="Transformez la phrase comme ceci:" generateQuestionAnswerSentences={this.generateQuestionAnswerSentences} onScoreChange={this.onScoreChange} />
         </div>
     );
   }

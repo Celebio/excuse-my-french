@@ -22,7 +22,7 @@
 // Ils NE y vont PAS
 
 
-- tolerance differente pour les aux, verbes et cod (typiquement osef qu'on tape mal le nom d'une ville)
+
 
 // parler de qq chose
 // change de qq chose
@@ -176,5 +176,86 @@ npm run build
 npm run dev
 
 https://codepen.io/nearcbw/pen/OXZrvw
+
+http://mes-lecons-de-grammaire.fr/public/pdf/listes_maitre/liste_maitre_gramm_verbes_a_c.o.i.pdf
+
+
+
+donner
+prendre
+transporter
+livrer
+changer
+mettre
+voir
+acheter
+
+-> qqchose
+
+
+
+
+
+
+
+montrer
+envoyer
+donner
+transporter
+livrer
+lancer
+rendre
+expliquer
+enseigner
+
+qqchose, à qqun
+
+
+
+
+
+
+téléphoner
+obéir
+répondre
+mentir
+plaire
+à qqun
+
+
+
+
+
+aller
+partir
+se déplacer
+arriver
+déménager
+se rendre
+
+à {ville}, en {pays}
+
+
+
+
+
+le livre
+la table
+la chaise
+le canapé
+la télé
+la porte
+
+
+expliquer:
+    la formule
+    le cours
+    le livre
+
+aimer:
+    le livre
+    le printemps
+    les vêtements
+    la ville
 
 

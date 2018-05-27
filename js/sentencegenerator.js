@@ -29,7 +29,7 @@ var FrenchDictionary = Object.freeze({
     'verbesDeplacement' : ["aller", "partir", "se déplacer", "arriver", "déménager", "se rendre"],
     'verbesAction' : ["donner", "prendre", "transporter", "livrer", "changer", "mettre", "voir", "acheter"],
     'verbesAutres' : ["téléphoner", "travailler"],
-    'verbesActionCoiable' : ["montrer", "envoyer", "donner", "transporter", "livrer", "lancer", "rendre", "expliquer", "enseigner"],
+    'verbesActionCoiable' : ["donner", "acheter", "offrir", "montrer", "envoyer", "donner", "transporter", "livrer", "lancer", "rendre"],
     'verbesTransitifsIndirectsQuelquun' : ["téléphoner", "obéir", "répondre", "mentir", "plaire"],
     'objets' : ["le livre", "la table", "la chaise", "le canapé", "la télé", "la porte"],
     'cois' : ["à moi", "à toi", ["à lui", "à elle", "à Alphonse", "à Elodie"], ["à nous", "à Eloise et à moi"], ["à vous", "à Pierre et à toi"], ["à eux", "à elles", "à Jean-Baptise et Pierre", "à Jean-Baptise et Eloise"]]
@@ -104,6 +104,10 @@ var ConjugaisonReference = {
         "plaire":{
             'present':["plais", "plais", "plait", "plaisons", "plaisez", "plaisent"],
             'participepassé':"plu"
+        },
+        "offrir":{
+            'present':["offre", "offres", "offre", "offrons", "offrez", "offrent"],
+            'participepassé':"offert"
         },
     },
     'pronominalVerbePronoms' : ["me", "te", "se", "nous", "vous", "se"],
@@ -571,7 +575,7 @@ class Generator {
     }
 
     _getAuxiliaireFromVerbe(verbeElement){
-        let etreVerbes = {'déplacer':1, 'partir':1, 'aller':1, 'arriver':1, 'rendre':1};
+        let etreVerbes = {'déplacer':1, 'partir':1, 'aller':1, 'arriver':1};
         if (verbeElement.word in etreVerbes || verbeElement.pronominal){
             return AuxiliaireVerbes.ETRE;
         }

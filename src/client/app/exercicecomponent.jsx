@@ -91,7 +91,9 @@ class ExerciceSentenceComponent extends SentenceBasedComponent {
     let position = this.textInput.selectionStart;
     this.setState((prevState, props) => {
       let st = Object.assign({}, prevState);
-      st.inputValue = st.inputValue.substr(0, position-1) + text + st.inputValue.substr(position-1);
+      if (st.inputValue.length){
+        st.inputValue = st.inputValue.substr(0, position-1) + text + st.inputValue.substr(position-1);
+      }
 
       return st;
     });
