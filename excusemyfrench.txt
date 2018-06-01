@@ -1,4 +1,9 @@
 
+Tu tiens à Alphonse
+Tu n'y as pas tenu
+-> bizarre
+
+
 // Ils se sont déplacés
 // Ils vont se déplacer
 

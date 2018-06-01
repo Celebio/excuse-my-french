@@ -65,11 +65,12 @@ class App extends React.Component {
     let applyPronomCOD = true;
     let applyPronomCOI = false;
     let applyPronomLieu = false;
+    let applyPronomComplement = true;
     let applyNegation = false;
 
     let sentenceGenerator = new SentenceGenerator();
     let sentence = sentenceGenerator.generate(pattern, 'present');
-    let answerSentence = sentenceGenerator.generateModified(sentence, tense, applyPronomCOD, applyPronomCOI, applyPronomLieu, applyNegation);
+    let answerSentence = sentenceGenerator.generateModified(sentence, tense, applyPronomCOD, applyPronomCOI, applyPronomLieu, applyPronomComplement, applyNegation);
 
     return {sentence:sentence, answerSentence:answerSentence};
   }
