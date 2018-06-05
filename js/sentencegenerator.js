@@ -36,6 +36,7 @@ var FrenchDictionary = Object.freeze({
     'verbesTransitifsIndirectsQuelquun' : ["téléphoner", "obéir", "répondre", "mentir", "plaire"],
     'objets' : ["le livre", "la table", "la chaise", "le canapé", "la télé", "la porte"],
     'objetsExplicables' : ["la formule", "le cours", "le livre"],
+    'objetsPensables' : ["le film", "le cours", "le livre", "la chanson"],
     'sports' : ["le golf", "le football", "le tennis", "le basketball"],
     'musique' : ["le piano", "la guitare", "la flûte", "le violon"],
     'cois' : ["à moi", "à toi", ["à lui", "à elle", "à Alphonse", "à Elodie"], ["à nous", "à Eloise et à moi"], ["à vous", "à Pierre et à toi"], ["à eux", "à elles", "à Jean-Baptiste et Pierre", "à Jean-Baptiste et Eloise"]],
@@ -65,10 +66,10 @@ var FrenchDictionary = Object.freeze({
         {'key':"plaire",                       'aqqun':true},
 
         {'key':"tenir_action",    'label':"tenir", 'cod':true},
-        {'key':"tenir_sentiment", 'label':"tenir", 'aqqun_y':true},
+        {'key':"tenir_sentiment", 'label':"tenir", 'aqqun_rien':true},
 
-        {'key':"penser", 'aqqun_y':true},
-        {'key':"penser", 'aqqchose_y':true},
+        {'key':"penser", 'aqqun_rien':true},
+        {'key':"penser", 'aqqchose_y':"objetsPensables"},
 
         {'key':"réfléchir", 'aqqchose_y':"objetsExplicables"},
 
@@ -270,12 +271,14 @@ class RenderContext {
         this.sujetIndex = -1;
         this.feminin = false;
         this.pluriel = false;
+        this._sujetItem = null;
         this._auxItem = null;
+        this._pronomCodItem = null;
+        this._participItem = null;
+        this._pronomCodWasBeforeParticip = false;
     }
 
-    setSujet(patternElement){
-        this.sujetIndex = this._indexOfSujet(patternElement.word);
-    }
+
 
     _indexOfSujetCore(sujetKey, items, level){
         for (let i=0; i<items.length; i++){
@@ -305,13 +308,45 @@ class RenderContext {
         return this._indexOfSujetCore(sujetKey, FrenchDictionary.sujets, 0);
     }
 
+    setSujet(patternElement){
+        this._sujetItem = patternElement;
+        this.sujetIndex = this._indexOfSujet(patternElement.word);
+    }
     setAuxItem(item){
         this._auxItem = item;
+    }
+    setPronomCod(item){
+        this._pronomCodItem = item;
+        if (!this._participItem){
+            this._pronomCodWasBeforeParticip = true;
+        }
+        // console.log(item);
+        // console.log(getPronomReplacedAncestor(item));
+    }
+    setParticip(item){
+        this._participItem = item;
     }
 
     shouldDoAccord(){
         assert(this._auxItem);
-        return (this._auxItem.aux == AuxiliaireVerbes.ETRE);
+        if (this._auxItem.aux == AuxiliaireVerbes.ETRE){
+            return true;
+        } else if (this._auxItem.aux == AuxiliaireVerbes.AVOIR &&
+                   this._pronomCodWasBeforeParticip){
+            let ancestor = getPronomReplacedAncestor(this._pronomCodItem);
+            let word = ancestor.parent.word;
+
+            this.pluriel = false;
+            if (word.substr(0, 3) == "le "){
+                this.feminin = false;
+            } else if (word.substr(0, 3) == "la "){
+                this.feminin = true;
+            } else {
+                assert(false);
+            }
+            return true;
+        }
+        return null;
     }
 }
 
@@ -398,6 +433,7 @@ class SentenceRenderer {
             } else if (wordType == WordTypes.PRONOMLIEU){
                 word = "y";
             } else if (wordType == WordTypes.PRONOMCOD){
+                me._context.setPronomCod(item);
                 word = me._pronomRenderer.render(item);
             } else if (wordType == WordTypes.PRONOMCOI){
                 word = me._pronomRenderer.render(item);
@@ -408,6 +444,7 @@ class SentenceRenderer {
             } else if (wordType == WordTypes.LIEU){
                 word = me._lieuRenderer.render(item);
             } else if (wordType == WordTypes.PARTICIP){
+                me._context.setParticip(item);
                 word = me._conjugator.conjugateVerbe(item.particip, me._context, 'participepassé');
             } else if (wordType == WordTypes.VERBE){
                 word = me._conjugator.conjugateVerbe(item.word, me._context, tense);
@@ -527,11 +564,15 @@ class Generator {
         let me = this;
         let sentence = [];
         let patternElementToReplace = null;
+        let originalIndexOfPattern = -1;
+        let ctr = 0;
         sourceSentence.forEach(function(elem){
             let sentenceElement = clone(elem);
+            ctr++;
             let patternElementType = getPatternElementType(sentenceElement);
             if (patternElementType == pronomShouldReplace){
                 patternElementToReplace = sentenceElement;
+                originalIndexOfPattern = ctr;
             } else {
                 sentence.push(sentenceElement);
             }
@@ -603,11 +644,16 @@ class Generator {
                     'parent':patternElementToReplace
                 });
             } else {
-                sentence.splice(indexToInsert, 0, {
-                    'type':WordTypes.PRONOMCOI,
-                    'pronom':'COI',
-                    'parent':patternElementToReplace
-                });
+                if ('pronom' in patternElementToReplace &&
+                    !patternElementToReplace.pronom){
+                    sentence.splice(originalIndexOfPattern, 0, patternElementToReplace);
+                } else {
+                    sentence.splice(indexToInsert, 0, {
+                        'type':WordTypes.PRONOMCOI,
+                        'pronom':'COI',
+                        'parent':patternElementToReplace
+                    });
+                }
             }
         } else if (pronomShouldReplace == WordTypes.COMPLEMENT){
             sentence.splice(indexToInsert, 0, {
@@ -829,9 +875,7 @@ class SentenceGenerator {
     }
 
     generate2(tense){
-        console.log(FrenchDictionary.verbes);
         let verbDescription = pickRandomItem(FrenchDictionary.verbes, true);
-        console.log(verbDescription);
 
         let pattern = [
             {'type':WordTypes.SUJET},
@@ -848,6 +892,9 @@ class SentenceGenerator {
         }
         if (verbDescription.aqqun_y === true){
             pattern.push({'type':WordTypes.COI, 'pronom':"y"});
+        }
+        if (verbDescription.aqqun_rien === true){
+            pattern.push({'type':WordTypes.COI, 'pronom':null});
         }
         if (verbDescription.aqqchose_y === true){
             pattern.push({'type':WordTypes.COI, 'pronom':"y", 'subset':"objets"});
